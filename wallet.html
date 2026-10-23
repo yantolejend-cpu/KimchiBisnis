@@ -1,0 +1,2548 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wallet Cash App</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        cash: { 50:'#ecfdf5',100:'#d1fae5',200:'#a7f3d0',300:'#6ee7b7',400:'#34d399',500:'#10b981',600:'#059669',700:'#047857',800:'#065f46',900:'#064e3b' },
+        dark: { 800:'#1e293b',900:'#0f172a',950:'#020617' }
+      },
+      fontFamily: { sans: ['Inter','system-ui','sans-serif'] }
+    }
+  }
+}
+</script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  body { font-family: 'Inter', system-ui, sans-serif; }
+  .glass { background: rgba(15,23,42,0.75); backdrop-filter: blur(16px); border: 1px solid rgba(148,163,184,0.12); }
+  .glow { box-shadow: 0 0 40px -10px rgba(16,185,129,0.35); }
+  .input-focus:focus { outline: none; border-color: #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,0.15); }
+  .btn-primary { background: linear-gradient(135deg,#10b981,#059669); }
+  .btn-primary:hover { background: linear-gradient(135deg,#059669,#047857); }
+  .role-badge-founder { background: linear-gradient(135deg,#f59e0b,#d97706); }
+  .role-badge-owner { background: linear-gradient(135deg,#8b5cf6,#7c3aed); }
+  .role-badge-admin { background: linear-gradient(135deg,#3b82f6,#2563eb); }
+  .role-badge-member { background: linear-gradient(135deg,#64748b,#475569); }
+  .hidden { display: none !important; }
+  .toast { animation: slideIn 0.3s ease; }
+  @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .founder-shell {
+    background: linear-gradient(145deg, rgba(245,158,11,0.08), rgba(15,23,42,0.9) 40%);
+    border: 1px solid rgba(245,158,11,0.25);
+    box-shadow: 0 0 60px -15px rgba(245,158,11,0.3), inset 0 1px 0 rgba(255,255,255,0.04);
+  }
+  .founder-card {
+    background: rgba(15,23,42,0.65);
+    border: 1px solid rgba(148,163,184,0.1);
+    border-radius: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .founder-card:hover { border-color: rgba(245,158,11,0.3); box-shadow: 0 0 24px -8px rgba(245,158,11,0.2); }
+  .founder-icon {
+    width: 2.25rem; height: 2.25rem; border-radius: 0.75rem;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, rgba(245,158,11,0.25), rgba(217,119,6,0.15));
+    border: 1px solid rgba(245,158,11,0.3);
+  }
+  .btn-founder {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    box-shadow: 0 4px 14px -4px rgba(245,158,11,0.5);
+  }
+  .btn-founder:hover { background: linear-gradient(135deg, #d97706, #b45309); }
+  .btn-danger-soft {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    box-shadow: 0 4px 14px -4px rgba(239,68,68,0.4);
+  }
+  .btn-danger-soft:hover { background: linear-gradient(135deg, #dc2626, #b91c1c); }
+  .btn-mute {
+    background: rgba(51,65,85,0.8);
+    border: 1px solid rgba(100,116,139,0.4);
+  }
+  .btn-mute:hover { background: rgba(71,85,105,0.9); }
+  select.input-focus option { background: #0f172a; color: #e2e8f0; }
+  .bri-card {
+    aspect-ratio: 1.586 / 1;
+    max-width: 380px;
+    background: linear-gradient(135deg, #003d7a 0%, #0052a3 35%, #0066cc 70%, #004080 100%);
+    border-radius: 16px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 40px -12px rgba(0, 61, 122, 0.55), 0 0 0 1px rgba(255,255,255,0.08);
+  }
+  .bri-card::before {
+    content: '';
+    position: absolute;
+    top: -40%;
+    right: -20%;
+    width: 70%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .bri-card::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: -15%;
+    width: 55%;
+    height: 80%;
+    background: radial-gradient(circle, rgba(0, 180, 255, 0.15) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  .bri-chip {
+    width: 42px;
+    height: 32px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #e8c872 0%, #d4a84b 40%, #c9a227 70%, #b8922a 100%);
+    box-shadow: inset 0 1px 2px rgba(255,255,255,0.4), 0 1px 2px rgba(0,0,0,0.2);
+    position: relative;
+  }
+  .bri-chip::before {
+    content: '';
+    position: absolute;
+    inset: 6px 4px;
+    border: 1px solid rgba(0,0,0,0.15);
+    border-radius: 3px;
+  }
+  .bri-wave {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 45%;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 80' preserveAspectRatio='none'%3E%3Cpath d='M0 40 Q100 10 200 40 T400 40 V80 H0Z' fill='rgba(255,255,255,0.04)'/%3E%3C/svg%3E") no-repeat bottom;
+    background-size: 100% 100%;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body class="bg-dark-950 text-slate-100 min-h-screen">
+
+<div id="toast" class="fixed top-4 right-4 z-50 hidden"></div>
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen" class="min-h-screen flex items-center justify-center p-4">
+  <div class="glass rounded-2xl p-8 w-full max-w-md glow">
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-cash-500/20 mb-4">
+        <svg class="w-8 h-8 text-cash-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      </div>
+      <h1 class="text-2xl font-bold tracking-tight">Wallet Cash App</h1>
+      <p class="text-slate-400 text-sm mt-1">Aman • Cepat • Modern</p>
+    </div>
+
+    <div class="flex mb-6 bg-dark-900 rounded-xl p-1">
+      <button type="button" id="tab-login" class="flex-1 py-2.5 rounded-lg text-sm font-medium transition-all bg-cash-600 text-white">Masuk</button>
+      <button type="button" id="tab-register" class="flex-1 py-2.5 rounded-lg text-sm font-medium transition-all text-slate-400 hover:text-white">Buat Akun</button>
+    </div>
+
+    <form id="form-login" class="space-y-4">
+      <div>
+        <label class="block text-xs font-medium text-slate-400 mb-1.5">Rekening / Username</label>
+        <input type="text" id="login-user" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-3 text-sm input-focus" placeholder="Masukkan rekening atau username" required autocomplete="username">
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-slate-400 mb-1.5">Password</label>
+        <input type="password" id="login-pass" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-3 text-sm input-focus" placeholder="Minimal 8 karakter" required autocomplete="current-password">
+      </div>
+      <button type="submit" class="w-full btn-primary text-white font-semibold py-3 rounded-xl transition-all">Masuk</button>
+    </form>
+
+    <form id="form-register" class="space-y-4 hidden">
+      <div>
+        <label class="block text-xs font-medium text-slate-400 mb-1.5">Username</label>
+        <input type="text" id="reg-user" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-3 text-sm input-focus" placeholder="Pilih username unik" required autocomplete="username">
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-slate-400 mb-1.5">Password (min 8 karakter)</label>
+        <input type="password" id="reg-pass" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-3 text-sm input-focus" placeholder="Minimal 8 karakter" required minlength="8" autocomplete="new-password">
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-slate-400 mb-1.5">Konfirmasi Password</label>
+        <input type="password" id="reg-pass2" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-3 text-sm input-focus" placeholder="Ulangi password" required minlength="8" autocomplete="new-password">
+      </div>
+      <p class="text-xs text-cash-400">🎁 Starter pack Rp 100.000 untuk akun baru</p>
+      <button type="submit" class="w-full btn-primary text-white font-semibold py-3 rounded-xl transition-all">Buat Akun</button>
+    </form>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="hidden min-h-screen">
+  <nav class="glass border-b border-slate-800 sticky top-0 z-40">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-cash-500/20 flex items-center justify-center">
+          <svg class="w-5 h-5 text-cash-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <span class="font-semibold tracking-tight">Wallet Cash App</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <button type="button" id="btn-goto-axiom" class="text-xs font-medium px-3 py-1.5 rounded-lg bg-emerald-600/80 hover:bg-emerald-500 text-white transition-colors">Axiom</button>
+        <button type="button" id="btn-goto-reward" class="text-xs font-medium px-3 py-1.5 rounded-lg bg-amber-600/80 hover:bg-amber-500 text-white transition-colors">Daily Reward</button>
+        <button type="button" id="btn-goto-trade" class="text-xs font-medium px-3 py-1.5 rounded-lg bg-violet-600/80 hover:bg-violet-500 text-white transition-colors">Trading</button>
+        <span id="nav-role" class="text-xs font-medium px-2.5 py-1 rounded-full"></span>
+        <span id="nav-user" class="text-sm text-slate-300"></span>
+        <button type="button" id="btn-logout" class="text-xs text-slate-400 hover:text-white transition-colors px-3 py-1.5 rounded-lg hover:bg-slate-800">Keluar</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-6xl mx-auto px-4 py-8 space-y-6">
+    <div class="grid lg:grid-cols-2 gap-6 items-start">
+      <!-- Saldo -->
+      <div class="glass rounded-2xl p-6 glow">
+        <p class="text-slate-400 text-sm">Saldo Anda</p>
+        <p id="balance-display" class="text-4xl font-bold tracking-tight mt-1 text-cash-400">Rp 0</p>
+        <p class="text-slate-500 text-xs mt-2">Rekening: <span id="rekening-display" class="text-slate-300 font-mono"></span></p>
+      </div>
+
+      <!-- Kartu Cash App (model BRI) -->
+      <div class="bri-card p-5 text-white select-none">
+        <div class="bri-wave"></div>
+        <div class="relative z-10 flex flex-col h-full min-h-[200px]">
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="text-[10px] uppercase tracking-[0.2em] text-blue-100/70 font-medium">Cash App</p>
+              <p class="text-xs text-blue-100/90 mt-0.5 font-semibold">Debit Card</p>
+            </div>
+            <div class="text-right">
+              <p class="text-sm font-bold tracking-wider">CASH<span class="text-amber-300">APP</span></p>
+              <p class="text-[9px] text-blue-200/60 mt-0.5">VIRTUAL CARD</p>
+            </div>
+          </div>
+
+          <div class="mt-5 flex items-center gap-3">
+            <div class="bri-chip"></div>
+            <div class="w-8 h-6 rounded-sm bg-white/10 border border-white/20 flex items-center justify-center">
+              <svg class="w-5 h-5 text-white/70" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8.5 12a3.5 3.5 0 117 0 3.5 3.5 0 01-7 0z"/><path d="M12 8.5v7M8.5 12h7"/></svg>
+            </div>
+          </div>
+
+          <p id="card-number" class="mt-4 text-lg sm:text-xl font-mono tracking-[0.18em] font-medium text-white drop-shadow">•••• •••• •••• ••••</p>
+
+          <div class="mt-auto pt-4 flex items-end justify-between gap-3">
+            <div>
+              <p class="text-[9px] uppercase tracking-wider text-blue-200/60">Card Holder</p>
+              <p id="card-holder" class="text-sm font-semibold tracking-wide uppercase truncate max-w-[140px]">—</p>
+            </div>
+            <div>
+              <p class="text-[9px] uppercase tracking-wider text-blue-200/60">Valid Thru</p>
+              <p id="card-expiry" class="text-sm font-semibold tracking-wide">12/30</p>
+            </div>
+            <div class="text-right">
+              <div class="inline-flex items-center justify-center w-11 h-7 rounded bg-white/15 border border-white/25">
+                <span class="text-[10px] font-bold tracking-tight text-white">VISA</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QRIS -->
+    <div class="glass rounded-2xl p-6">
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-red-500/15 border border-red-500/30 flex items-center justify-center">
+            <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+          </div>
+          <div>
+            <h2 class="text-lg font-semibold">QRIS Saya</h2>
+            <p class="text-xs text-slate-500">Tampilkan QR untuk terima transfer</p>
+          </div>
+        </div>
+        <span class="text-[10px] font-bold tracking-widest px-2.5 py-1 rounded bg-red-600 text-white">QRIS</span>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-6 items-start">
+        <!-- QR preview -->
+        <div class="flex flex-col items-center">
+          <div class="bg-white rounded-2xl p-4 shadow-lg shadow-black/30">
+            <div class="flex items-center justify-center gap-1 mb-2">
+              <span class="text-[10px] font-bold text-red-600 tracking-wider">QRIS</span>
+              <span class="text-[9px] text-slate-400">•</span>
+              <span class="text-[9px] text-slate-500 font-medium">Cash App</span>
+            </div>
+            <div id="qris-canvas" class="flex items-center justify-center min-h-[180px] min-w-[180px]"></div>
+            <p id="qris-name" class="text-center text-xs font-semibold text-slate-800 mt-2 uppercase tracking-wide">—</p>
+            <p id="qris-nmid" class="text-center text-[10px] text-slate-500 font-mono">NMID: —</p>
+          </div>
+          <p class="text-[11px] text-slate-500 mt-3 text-center">Scan / bagikan QR ini untuk menerima uang</p>
+        </div>
+
+        <!-- Controls -->
+        <div class="space-y-4">
+          <div>
+            <label class="block text-xs text-slate-400 mb-1.5">Nominal (opsional)</label>
+            <input type="number" id="qris-amount" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm input-focus" placeholder="Kosongkan = open amount" min="0">
+            <p class="text-[11px] text-slate-500 mt-1">Isi nominal jika ingin QR dengan jumlah tetap</p>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button type="button" id="btn-qris-refresh" class="flex-1 min-w-[100px] btn-primary text-white font-medium py-2.5 rounded-xl text-sm">Generate QR</button>
+            <button type="button" id="btn-qris-download" class="flex-1 min-w-[100px] bg-amber-600 hover:bg-amber-500 text-white font-medium py-2.5 rounded-xl text-sm transition-colors">Unduh QRIS</button>
+            <button type="button" id="btn-qris-copy" class="flex-1 min-w-[100px] bg-slate-700 hover:bg-slate-600 text-white font-medium py-2.5 rounded-xl text-sm transition-colors">Salin Rekening</button>
+          </div>
+          <div class="rounded-xl bg-dark-900/80 border border-slate-800 p-3 space-y-1.5">
+            <p class="text-[11px] text-slate-500">Payload QRIS (demo)</p>
+            <p id="qris-payload" class="text-xs font-mono text-cash-400 break-all leading-relaxed">—</p>
+          </div>
+          <p class="text-[11px] text-slate-500 leading-relaxed">⚠️ Ini QRIS <strong class="text-slate-400">simulasi</strong> untuk transfer antar user di app ini, bukan QRIS resmi Bank Indonesia.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass rounded-2xl p-6">
+      <h2 class="text-lg font-semibold mb-1">Transfer</h2>
+      <p class="text-xs text-slate-500 mb-4">Kirim via rekening manual atau upload foto QRIS penerima</p>
+
+      <!-- Upload QRIS -->
+      <div class="mb-4 rounded-xl border border-dashed border-slate-600 bg-dark-900/50 p-4">
+        <div class="flex flex-wrap items-center gap-3">
+          <label class="cursor-pointer inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-sm font-medium transition-colors">
+            <svg class="w-4 h-4 text-cash-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            Upload QRIS
+            <input type="file" id="tf-qris-file" accept="image/*" class="hidden">
+          </label>
+          <span id="tf-qris-status" class="text-xs text-slate-500">Belum ada QR diunggah</span>
+        </div>
+        <canvas id="tf-qris-preview" class="hidden mt-3 max-w-[120px] rounded-lg border border-slate-700"></canvas>
+      </div>
+
+      <div class="grid sm:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-xs text-slate-400 mb-1.5">Rekening Tujuan</label>
+          <input type="text" id="tf-rekening" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm input-focus" placeholder="Nomor rekening / hasil scan QRIS">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1.5">Jumlah (Rp)</label>
+          <input type="number" id="tf-amount" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm input-focus" placeholder="0" min="1">
+        </div>
+        <div class="flex items-end">
+          <button type="button" id="btn-transfer" class="w-full btn-primary text-white font-medium py-2.5 rounded-xl">Kirim</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PINJAMAN / PINJOL -->
+    <div id="panel-loan" class="glass rounded-2xl p-6">
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center">
+            <svg class="w-5 h-5 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+          </div>
+          <div>
+            <h2 class="text-lg font-semibold">Pinjaman (Pinjol)</h2>
+            <p class="text-xs text-slate-500">Rp 100.000 – 10.000.000 • Bunga 10%/bulan • Cicilan otomatis</p>
+          </div>
+        </div>
+        <span id="loan-status-badge" class="text-[10px] font-bold tracking-wide px-2.5 py-1 rounded-full bg-slate-700 text-slate-300">TIDAK ADA</span>
+      </div>
+
+      <div id="loan-apply-box" class="space-y-4">
+        <div class="grid sm:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs text-slate-400 mb-1.5">Jumlah pinjam (Rp)</label>
+            <input type="number" id="loan-amount" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm input-focus" placeholder="100000" min="100000" max="10000000" step="10000">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1.5">Tenor</label>
+            <select id="loan-tenor" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm input-focus">
+              <option value="1">1 bulan</option>
+              <option value="2">2 bulan</option>
+              <option value="3" selected>3 bulan</option>
+            </select>
+          </div>
+          <div class="flex items-end">
+            <button type="button" id="btn-loan-apply" class="w-full bg-orange-600 hover:bg-orange-500 text-white font-medium py-2.5 rounded-xl transition-colors">Ajukan Pinjaman</button>
+          </div>
+        </div>
+        <div id="loan-preview" class="rounded-xl bg-dark-900/80 border border-slate-800 p-3 text-xs text-slate-400 space-y-1 hidden">
+          <p>Pokok: <span id="lp-pokok" class="text-slate-200">—</span></p>
+          <p>Bunga (10%/bulan × tenor): <span id="lp-bunga" class="text-orange-300">—</span></p>
+          <p>Total bayar: <span id="lp-total" class="text-slate-200">—</span></p>
+          <p>Cicilan / bulan: <span id="lp-cicilan" class="text-cash-400 font-semibold">—</span></p>
+        </div>
+        <p class="text-[11px] text-slate-500 leading-relaxed">Jika cicilan gagal (saldo kurang), rekening <strong class="text-red-400">dibekukan 6 hari</strong>. Setelah 6 hari rekening dibuka lagi dengan <strong class="text-red-400">saldo Rp 0</strong>.</p>
+      </div>
+
+      <div id="loan-active-box" class="hidden space-y-4">
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div class="rounded-xl bg-dark-900/80 border border-slate-800 p-3">
+            <p class="text-[11px] text-slate-500">Sisa utang</p>
+            <p id="la-remaining" class="text-lg font-bold text-orange-300">—</p>
+          </div>
+          <div class="rounded-xl bg-dark-900/80 border border-slate-800 p-3">
+            <p class="text-[11px] text-slate-500">Cicilan / bulan</p>
+            <p id="la-installment" class="text-lg font-bold text-slate-100">—</p>
+          </div>
+          <div class="rounded-xl bg-dark-900/80 border border-slate-800 p-3">
+            <p class="text-[11px] text-slate-500">Jatuh tempo</p>
+            <p id="la-due" class="text-sm font-semibold text-slate-200">—</p>
+          </div>
+          <div class="rounded-xl bg-dark-900/80 border border-slate-800 p-3">
+            <p class="text-[11px] text-slate-500">Progress</p>
+            <p id="la-progress" class="text-sm font-semibold text-slate-200">—</p>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button type="button" id="btn-loan-pay" class="btn-primary text-white font-medium px-5 py-2.5 rounded-xl text-sm">Bayar Cicilan Sekarang</button>
+          <button type="button" id="btn-loan-payoff" class="bg-slate-700 hover:bg-slate-600 text-white font-medium px-5 py-2.5 rounded-xl text-sm transition-colors">Pelunasan Sekaligus</button>
+        </div>
+        <p id="loan-note" class="text-[11px] text-slate-500"></p>
+      </div>
+
+      <div id="loan-frozen-box" class="hidden rounded-xl border border-red-500/40 bg-red-500/10 p-4">
+        <p class="text-sm font-semibold text-red-300 mb-1">Rekening dibekukan</p>
+        <p id="loan-frozen-msg" class="text-xs text-red-200/80 leading-relaxed">—</p>
+      </div>
+    </div>
+
+    <div id="panel-admin" class="glass rounded-2xl p-6 hidden">
+      <h2 class="text-lg font-semibold mb-1 flex items-center gap-2">
+        <span class="role-badge-admin text-xs px-2 py-0.5 rounded-full text-white">ADMIN</span>
+        Panel Admin
+      </h2>
+      <p class="text-slate-400 text-sm mb-4">Tambah saldo ke rekening / user</p>
+      <div class="grid sm:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-xs text-slate-400 mb-1.5">Rekening / Username</label>
+          <input type="text" id="admin-target" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm input-focus" placeholder="Target">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1.5">Jumlah Tambah (Rp)</label>
+          <input type="number" id="admin-amount" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm input-focus" placeholder="0" min="1">
+        </div>
+        <div class="flex items-end">
+          <button type="button" id="btn-admin-add" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-xl transition-colors">Tambah Uang</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="panel-owner" class="glass rounded-2xl p-6 hidden">
+      <h2 class="text-lg font-semibold mb-1 flex items-center gap-2">
+        <span class="role-badge-owner text-xs px-2 py-0.5 rounded-full text-white">OWNER</span>
+        Panel Owner
+      </h2>
+      <p class="text-slate-400 text-sm mb-4">Tambah saldo + copot role Admin → Member</p>
+      <div class="space-y-4">
+        <div class="grid sm:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs text-slate-400 mb-1.5">Rekening / Username</label>
+            <input type="text" id="owner-target" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm input-focus" placeholder="Target">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1.5">Jumlah Tambah (Rp)</label>
+            <input type="number" id="owner-amount" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm input-focus" placeholder="0" min="1">
+          </div>
+          <div class="flex items-end">
+            <button type="button" id="btn-owner-add" class="w-full bg-violet-600 hover:bg-violet-700 text-white font-medium py-2.5 rounded-xl transition-colors">Tambah Uang</button>
+          </div>
+        </div>
+        <div class="grid sm:grid-cols-2 gap-4 pt-2 border-t border-slate-800">
+          <div>
+            <label class="block text-xs text-slate-400 mb-1.5">Rekening Admin yang mau di-copot</label>
+            <input type="text" id="owner-demote" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm input-focus" placeholder="Rekening Admin">
+          </div>
+          <div class="flex items-end">
+            <button type="button" id="btn-owner-demote" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-medium py-2.5 rounded-xl transition-colors">Copot Admin → Member</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="panel-founder" class="founder-shell rounded-2xl p-6 hidden relative overflow-hidden">
+      <!-- decorative glow -->
+      <div class="pointer-events-none absolute -top-20 -right-20 w-56 h-56 rounded-full bg-amber-500/10 blur-3xl"></div>
+      <div class="pointer-events-none absolute -bottom-16 -left-10 w-40 h-40 rounded-full bg-orange-600/10 blur-3xl"></div>
+
+      <div class="relative">
+        <!-- Header -->
+        <div class="flex flex-wrap items-start justify-between gap-3 mb-6">
+          <div class="flex items-center gap-3">
+            <div class="founder-icon">
+              <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h2 class="text-lg font-bold tracking-tight">Command Center</h2>
+                <span class="role-badge-founder text-[10px] font-semibold px-2 py-0.5 rounded-full text-white tracking-wide">FOUNDER</span>
+              </div>
+              <p class="text-slate-400 text-xs mt-0.5">Full system control • Create roles • Manage balances</p>
+            </div>
+          </div>
+          <a href="https://wa.me/6283895978451" target="_blank" rel="noopener"
+             class="inline-flex items-center gap-2 text-xs px-3 py-1.5 rounded-full bg-slate-800/80 border border-slate-700 text-slate-300 hover:border-amber-500/40 hover:text-amber-300 transition-colors">
+            <svg class="w-3.5 h-3.5 text-emerald-400" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.435 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            Bug Report
+          </a>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-4">
+          <!-- Card: Create Account -->
+          <div class="founder-card p-5">
+            <div class="flex items-center gap-2.5 mb-4">
+              <div class="w-8 h-8 rounded-lg bg-violet-500/15 border border-violet-500/30 flex items-center justify-center">
+                <svg class="w-4 h-4 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-slate-100">Buat Akun Staff</p>
+                <p class="text-[11px] text-slate-500">Admin atau Owner • + starter pack</p>
+              </div>
+            </div>
+            <div class="space-y-3">
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-[11px] text-slate-400 mb-1">Username</label>
+                  <input type="text" id="founder-new-user" class="w-full bg-dark-950/80 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm input-focus" placeholder="Username unik">
+                </div>
+                <div>
+                  <label class="block text-[11px] text-slate-400 mb-1">Password</label>
+                  <input type="password" id="founder-new-pass" class="w-full bg-dark-950/80 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm input-focus" placeholder="Min 8 karakter">
+                </div>
+              </div>
+              <div>
+                <label class="block text-[11px] text-slate-400 mb-1">Role</label>
+                <select id="founder-new-role" class="w-full bg-dark-950/80 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm input-focus">
+                  <option value="admin">Admin</option>
+                  <option value="owner">Owner</option>
+                </select>
+              </div>
+              <button type="button" id="btn-founder-create" class="w-full btn-founder text-white font-semibold py-2.5 rounded-xl transition-all text-sm">Buat Akun</button>
+            </div>
+          </div>
+
+          <!-- Card: Balance Control -->
+          <div class="founder-card p-5">
+            <div class="flex items-center gap-2.5 mb-4">
+              <div class="w-8 h-8 rounded-lg bg-cash-500/15 border border-cash-500/30 flex items-center justify-center">
+                <svg class="w-4 h-4 text-cash-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-slate-100">Kontrol Saldo</p>
+                <p class="text-[11px] text-slate-500">Tambah atau kurangi saldo user</p>
+              </div>
+            </div>
+            <div class="space-y-3">
+              <div>
+                <label class="block text-[11px] text-slate-400 mb-1">Rekening / Username</label>
+                <input type="text" id="founder-target" class="w-full bg-dark-950/80 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm input-focus" placeholder="Target">
+              </div>
+              <div>
+                <label class="block text-[11px] text-slate-400 mb-1">Jumlah (Rp)</label>
+                <input type="number" id="founder-amount" class="w-full bg-dark-950/80 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm input-focus" placeholder="0" min="1">
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <button type="button" id="btn-founder-add" class="btn-founder text-white font-medium py-2.5 rounded-xl transition-all text-sm">+ Tambah</button>
+                <button type="button" id="btn-founder-sub" class="btn-danger-soft text-white font-medium py-2.5 rounded-xl transition-all text-sm">− Kurangi</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card: Demote -->
+          <div class="founder-card p-5">
+            <div class="flex items-center gap-2.5 mb-4">
+              <div class="w-8 h-8 rounded-lg bg-red-500/15 border border-red-500/30 flex items-center justify-center">
+                <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-slate-100">Copot Role</p>
+                <p class="text-[11px] text-slate-500">Admin / Owner / Founder → Member</p>
+              </div>
+            </div>
+            <div class="space-y-3">
+              <div>
+                <label class="block text-[11px] text-slate-400 mb-1">Rekening target</label>
+                <input type="text" id="founder-demote" class="w-full bg-dark-950/80 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm input-focus" placeholder="Rekening / username">
+              </div>
+              <button type="button" id="btn-founder-demote" class="w-full btn-mute text-white font-medium py-2.5 rounded-xl transition-all text-sm">Copot Role → Member</button>
+            </div>
+          </div>
+
+          <!-- Card: Bug Report -->
+          <div class="founder-card p-5 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2.5 mb-3">
+                <div class="w-8 h-8 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center">
+                  <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                </div>
+                <div>
+                  <p class="text-sm font-semibold text-slate-100">Bug Report</p>
+                  <p class="text-[11px] text-slate-500">Ada masalah? Hubungi developer</p>
+                </div>
+              </div>
+              <p class="text-xs text-slate-400 leading-relaxed mb-4">Laporkan bug, error login, atau request fitur langsung ke developer.</p>
+              <div class="rounded-xl bg-dark-950/60 border border-slate-800 px-4 py-3 space-y-1.5">
+                <p class="text-[11px] text-slate-500">WhatsApp</p>
+                <p class="text-sm font-mono text-emerald-400 tracking-wide">+62 838-9597-8451</p>
+                <p class="text-[11px] text-slate-500">by <span class="text-slate-300 font-medium">Gabriel</span></p>
+              </div>
+            </div>
+            <a href="https://wa.me/6283895978451?text=Halo%20Gabriel%2C%20saya%20mau%20lapor%20bug%20Wallet%20Cash%20App" target="_blank" rel="noopener"
+               class="mt-4 w-full inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-xl transition-colors text-sm">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.435 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+              Chat WhatsApp
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="panel-users" class="glass rounded-2xl p-6 hidden">
+      <h2 class="text-lg font-semibold mb-4">Daftar User</h2>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="text-left text-slate-400 border-b border-slate-800">
+              <th class="pb-3 font-medium">Rekening</th>
+              <th class="pb-3 font-medium">Username</th>
+              <th class="pb-3 font-medium">Role</th>
+              <th class="pb-3 font-medium text-right">Saldo</th>
+            </tr>
+          </thead>
+          <tbody id="user-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- AXIOM TERMINAL PAGE -->
+<div id="axiom-page" class="hidden min-h-screen bg-[#0a0a0b] text-white">
+  <!-- Top bar -->
+  <header class="sticky top-0 z-40 border-b border-white/5 bg-[#0a0a0b]/90 backdrop-blur">
+    <div class="max-w-7xl mx-auto px-3 py-2.5 flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2">
+        <button type="button" id="btn-back-dash-axiom" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        </button>
+        <span class="font-bold tracking-[0.2em] text-sm">AXIOM</span>
+        <span class="text-[10px] text-emerald-400 bg-emerald-400/10 px-1.5 py-0.5 rounded">SIM</span>
+      </div>
+      <div class="flex items-center gap-1 bg-white/5 rounded-lg p-0.5 text-xs">
+        <button type="button" data-ax-tab="discover" class="ax-tab px-3 py-1.5 rounded-md bg-white/10 font-medium">Discover</button>
+        <button type="button" data-ax-tab="trade" class="ax-tab px-3 py-1.5 rounded-md text-white/50 hover:text-white">Trade</button>
+        <button type="button" data-ax-tab="pulse" class="ax-tab px-3 py-1.5 rounded-md text-white/50 hover:text-white">Pulse</button>
+      </div>
+      <div class="flex items-center gap-2 text-xs">
+        <span class="text-white/40 hidden sm:inline">Bal</span>
+        <span id="ax-bal" class="font-mono text-emerald-400 font-semibold">Rp 0</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-3 py-4">
+    <!-- DISCOVER -->
+    <div id="ax-panel-discover" class="ax-panel space-y-4">
+      <div class="flex gap-2 overflow-x-auto pb-1 text-xs">
+        <button type="button" class="ax-filter shrink-0 px-3 py-1.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30" data-filter="trending">🔥 Trending</button>
+        <button type="button" class="ax-filter shrink-0 px-3 py-1.5 rounded-full bg-white/5 text-white/60 border border-white/10" data-filter="new">✨ New</button>
+        <button type="button" class="ax-filter shrink-0 px-3 py-1.5 rounded-full bg-white/5 text-white/60 border border-white/10" data-filter="gainers">📈 Gainers</button>
+        <button type="button" class="ax-filter shrink-0 px-3 py-1.5 rounded-full bg-white/5 text-white/60 border border-white/10" data-filter="meme">🐸 Meme</button>
+      </div>
+      <div class="rounded-xl border border-white/5 overflow-hidden">
+        <div class="grid grid-cols-12 gap-2 px-3 py-2 text-[10px] uppercase tracking-wider text-white/30 bg-white/[0.02]">
+          <div class="col-span-4">Token</div>
+          <div class="col-span-3 text-right">Price</div>
+          <div class="col-span-2 text-right">24h</div>
+          <div class="col-span-3 text-right">Vol</div>
+        </div>
+        <div id="ax-token-list" class="divide-y divide-white/5"></div>
+      </div>
+    </div>
+
+    <!-- TRADE -->
+    <div id="ax-panel-trade" class="ax-panel hidden">
+      <div class="grid lg:grid-cols-5 gap-4">
+        <!-- Chart + token info -->
+        <div class="lg:col-span-3 space-y-3">
+          <div class="rounded-xl border border-white/5 bg-white/[0.02] p-4">
+            <div class="flex items-start justify-between gap-3 mb-3">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span id="ax-trade-sym" class="text-lg font-bold">PEPE</span>
+                  <span id="ax-trade-name" class="text-xs text-white/40">Pepe</span>
+                </div>
+                <p id="ax-trade-price" class="text-2xl font-mono font-semibold mt-1">Rp 0</p>
+                <p id="ax-trade-chg" class="text-xs text-emerald-400 mt-0.5">+0.00%</p>
+              </div>
+              <div class="text-right text-[11px] text-white/40 space-y-0.5">
+                <p>MC <span id="ax-trade-mc" class="text-white/70">—</span></p>
+                <p>Liq <span id="ax-trade-liq" class="text-white/70">—</span></p>
+              </div>
+            </div>
+            <!-- Mini sparkline chart -->
+            <canvas id="ax-chart" width="600" height="160" class="w-full h-40 rounded-lg bg-black/40"></canvas>
+          </div>
+          <div class="rounded-xl border border-white/5 bg-white/[0.02] p-3">
+            <p class="text-[10px] uppercase text-white/30 mb-2">Recent trades (sim)</p>
+            <div id="ax-tape" class="space-y-1 max-h-36 overflow-y-auto text-xs font-mono"></div>
+          </div>
+        </div>
+
+        <!-- Order panel -->
+        <div class="lg:col-span-2 space-y-3">
+          <div class="rounded-xl border border-white/5 bg-white/[0.02] p-4 space-y-3">
+            <div class="grid grid-cols-2 gap-1 p-0.5 bg-black/40 rounded-lg text-sm">
+              <button type="button" id="ax-side-buy" class="py-2 rounded-md bg-emerald-600 font-semibold">Buy</button>
+              <button type="button" id="ax-side-sell" class="py-2 rounded-md text-white/50 hover:text-white">Sell</button>
+            </div>
+            <div>
+              <label class="text-[11px] text-white/40">Amount (Rp)</label>
+              <input type="number" id="ax-amount" class="mt-1 w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2.5 text-sm font-mono focus:outline-none focus:border-emerald-500/50" placeholder="100000" min="1000">
+            </div>
+            <div class="grid grid-cols-4 gap-1.5">
+              <button type="button" class="ax-preset text-[11px] py-1.5 rounded-md bg-white/5 hover:bg-white/10 border border-white/5" data-pct="25">25%</button>
+              <button type="button" class="ax-preset text-[11px] py-1.5 rounded-md bg-white/5 hover:bg-white/10 border border-white/5" data-pct="50">50%</button>
+              <button type="button" class="ax-preset text-[11px] py-1.5 rounded-md bg-white/5 hover:bg-white/10 border border-white/5" data-pct="75">75%</button>
+              <button type="button" class="ax-preset text-[11px] py-1.5 rounded-md bg-white/5 hover:bg-white/10 border border-white/5" data-pct="100">Max</button>
+            </div>
+            <p class="text-[11px] text-white/40">Est. qty: <span id="ax-est-qty" class="text-white/80 font-mono">0</span> · Fee 1%</p>
+            <button type="button" id="ax-submit" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-bold text-sm transition-colors">Buy PEPE</button>
+            <p class="text-[10px] text-white/30 leading-relaxed">Simulasi memecoin style Axiom. Slippage ±0.5–2%. Bukan on-chain Solana.</p>
+          </div>
+          <div class="rounded-xl border border-white/5 bg-white/[0.02] p-3">
+            <p class="text-[10px] uppercase text-white/30 mb-2">Your position</p>
+            <div id="ax-position" class="text-xs text-white/50">No position</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PULSE (portfolio card) -->
+    <div id="ax-panel-pulse" class="ax-panel hidden">
+      <div class="relative rounded-2xl overflow-hidden border border-white/10 min-h-[70vh] flex items-end">
+        <div id="axiom-media-empty" class="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-zinc-900 to-black text-center px-6 z-0">
+          <p class="text-white/60 text-sm mb-3">Upload foto / video background</p>
+          <label class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/10 border border-white/20 text-white text-sm cursor-pointer hover:bg-white/15">
+            Pilih media
+            <input type="file" id="axiom-media-input2" accept="image/*,video/*" class="hidden">
+          </label>
+        </div>
+        <img id="axiom-bg-img" class="hidden absolute inset-0 w-full h-full object-cover z-0" alt="">
+        <video id="axiom-bg-video" class="hidden absolute inset-0 w-full h-full object-cover z-0" autoplay muted loop playsinline></video>
+        <div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/30 z-[1]"></div>
+
+        <div class="relative z-10 w-full px-5 pb-8 pt-16">
+          <div class="flex justify-between items-start mb-4">
+            <div>
+              <p class="text-white/50 text-xs mb-1">1D Realized</p>
+              <p id="axiom-realized" class="text-4xl font-bold tracking-tight text-emerald-400">+$0.00</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button type="button" id="btn-axiom-download" title="Unduh media" class="w-9 h-9 rounded-full bg-black/50 backdrop-blur flex items-center justify-center border border-white/10 hover:bg-white/10 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+              </button>
+              <label class="w-9 h-9 rounded-full bg-black/50 backdrop-blur flex items-center justify-center border border-white/10 cursor-pointer hover:bg-white/10 transition-colors" title="Upload media">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                <input type="file" id="axiom-media-input" accept="image/*,video/*" class="hidden">
+              </label>
+            </div>
+          </div>
+          <div class="space-y-1 text-sm text-white/70 mb-5">
+            <div class="flex gap-3"><span class="w-28 text-white/40">PNL</span><span id="axiom-pnl-pct" class="text-emerald-400">+0%</span></div>
+            <div class="flex gap-3"><span class="w-28 text-white/40">Total Bought</span><span id="axiom-bought" class="text-white/80">$0</span></div>
+            <div class="flex gap-3"><span class="w-28 text-white/40">Total Sold</span><span id="axiom-sold" class="text-white/80">$0</span></div>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-400 to-orange-500"></div>
+            <span id="axiom-handle" class="text-white font-medium text-sm">@user</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- DAILY REWARD PAGE -->
+<div id="reward-page" class="hidden min-h-screen">
+  <nav class="glass border-b border-slate-800 sticky top-0 z-40">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <button type="button" id="btn-back-dash-reward" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 flex items-center justify-center transition-colors">
+          <svg class="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        </button>
+        <div>
+          <span class="font-semibold tracking-tight">Daily Reward</span>
+          <p class="text-[10px] text-slate-500">Check-in 7 hari • Hari ke-7 = Rp 1.000.000</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="text-xs text-slate-400">Saldo</span>
+        <span id="reward-balance" class="text-sm font-semibold text-cash-400">Rp 0</span>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-3xl mx-auto px-4 py-8 space-y-6">
+    <div class="glass rounded-2xl p-6 text-center relative overflow-hidden">
+      <div class="pointer-events-none absolute -top-16 -right-16 w-48 h-48 rounded-full bg-amber-500/10 blur-3xl"></div>
+      <p class="text-xs text-amber-400/80 font-medium tracking-wider uppercase mb-2">Streak Check-in</p>
+      <p class="text-4xl font-bold tracking-tight" id="reward-streak-label">Hari 1</p>
+      <p class="text-sm text-slate-400 mt-2" id="reward-status-text">Klaim hadiah harianmu</p>
+      <button type="button" id="btn-claim-reward" class="mt-6 btn-primary text-white font-semibold px-8 py-3 rounded-xl text-sm disabled:opacity-40 disabled:cursor-not-allowed">
+        Klaim Hadiah
+      </button>
+      <p id="reward-next-hint" class="text-[11px] text-slate-500 mt-3"></p>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="reward-days-grid"></div>
+
+    <div class="glass rounded-2xl p-4 text-xs text-slate-500 leading-relaxed space-y-1">
+      <p>• Klaim <strong class="text-slate-300">1× per hari</strong> (reset jam 00:00 waktu perangkat).</p>
+      <p>• Berturut-turut 7 hari → hadiah naik sampai <strong class="text-amber-300">Rp 1.000.000</strong>.</p>
+      <p>• Lewat 1 hari tanpa klaim → streak kembali ke <strong class="text-slate-300">Hari 1</strong>.</p>
+      <p>• Semua role bisa klaim. Rekening beku tidak bisa klaim.</p>
+    </div>
+  </main>
+</div>
+
+<!-- TRADING PAGE -->
+<div id="trading-page" class="hidden min-h-screen">
+  <nav class="glass border-b border-slate-800 sticky top-0 z-40">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <button type="button" id="btn-back-dash" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 flex items-center justify-center transition-colors">
+          <svg class="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        </button>
+        <div>
+          <span class="font-semibold tracking-tight">Trading</span>
+          <p class="text-[10px] text-slate-500">Crypto + Emas • Simulasi</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="text-xs text-slate-400">Saldo</span>
+        <span id="trade-balance" class="text-sm font-semibold text-cash-400">Rp 0</span>
+        <button type="button" id="btn-logout-trade" class="text-xs text-slate-400 hover:text-white transition-colors px-3 py-1.5 rounded-lg hover:bg-slate-800">Keluar</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-6xl mx-auto px-4 py-6 space-y-6">
+    <!-- Market ticker -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3" id="market-cards"></div>
+
+    <div class="grid lg:grid-cols-5 gap-6">
+      <!-- Order form -->
+      <div class="lg:col-span-2 glass rounded-2xl p-5 space-y-4">
+        <h2 class="text-base font-semibold">Order</h2>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1.5">Aset</label>
+          <select id="trade-asset" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm input-focus">
+            <option value="BTC">BTC — Bitcoin</option>
+            <option value="ETH">ETH — Ethereum</option>
+            <option value="SOL">SOL — Solana</option>
+            <option value="GOLD">GOLD — Emas (gram)</option>
+          </select>
+        </div>
+        <div class="rounded-xl bg-dark-900/80 border border-slate-800 px-4 py-3 flex justify-between items-center">
+          <span class="text-xs text-slate-500">Harga pasar</span>
+          <span id="trade-price" class="text-sm font-mono font-semibold text-slate-100">—</span>
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1.5">Jumlah (qty)</label>
+          <input type="number" id="trade-qty" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm input-focus" placeholder="0.001" min="0" step="any">
+          <p class="text-[11px] text-slate-500 mt-1">Perkiraan: <span id="trade-est" class="text-slate-300">Rp 0</span></p>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <button type="button" id="btn-trade-buy" class="bg-cash-600 hover:bg-cash-500 text-white font-semibold py-2.5 rounded-xl transition-colors text-sm">Beli</button>
+          <button type="button" id="btn-trade-sell" class="bg-red-600 hover:bg-red-500 text-white font-semibold py-2.5 rounded-xl transition-colors text-sm">Jual</button>
+        </div>
+        <p class="text-[11px] text-slate-500 leading-relaxed">⚠️ Simulasi. Harga bergerak otomatis. Fee 0,1% per transaksi.</p>
+      </div>
+
+      <!-- Portfolio -->
+      <div class="lg:col-span-3 space-y-4">
+        <div class="glass rounded-2xl p-5">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-base font-semibold">Portfolio</h2>
+            <div class="text-right">
+              <p class="text-[11px] text-slate-500">Nilai aset</p>
+              <p id="port-value" class="text-sm font-bold text-cash-400">Rp 0</p>
+            </div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="text-left text-slate-500 border-b border-slate-800 text-xs">
+                  <th class="pb-2 font-medium">Aset</th>
+                  <th class="pb-2 font-medium text-right">Qty</th>
+                  <th class="pb-2 font-medium text-right">Avg</th>
+                  <th class="pb-2 font-medium text-right">Harga</th>
+                  <th class="pb-2 font-medium text-right">P/L</th>
+                </tr>
+              </thead>
+              <tbody id="port-body">
+                <tr><td colspan="5" class="py-6 text-center text-slate-500 text-xs">Belum ada posisi</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="glass rounded-2xl p-5">
+          <h2 class="text-base font-semibold mb-3">Riwayat Order</h2>
+          <div class="overflow-x-auto max-h-56 overflow-y-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="text-left text-slate-500 border-b border-slate-800 text-xs sticky top-0 bg-dark-950/90">
+                  <th class="pb-2 font-medium">Waktu</th>
+                  <th class="pb-2 font-medium">Side</th>
+                  <th class="pb-2 font-medium">Aset</th>
+                  <th class="pb-2 font-medium text-right">Qty</th>
+                  <th class="pb-2 font-medium text-right">Harga</th>
+                  <th class="pb-2 font-medium text-right">Total</th>
+                </tr>
+              </thead>
+              <tbody id="trade-history-body">
+                <tr><td colspan="6" class="py-4 text-center text-slate-500 text-xs">Belum ada transaksi</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+const STORAGE_KEY = 'wallet_cash_app_v1';
+const ROLE_RANK = { member: 1, admin: 2, owner: 3, founder: 4 };
+const STARTER_PACK = 100000; // Rp 100.000 untuk member baru
+const LOAN_MIN = 100000;
+const LOAN_MAX = 10000000;
+const LOAN_RATE = 0.10; // 10% per bulan (flat dari pokok)
+const LOAN_FREEZE_DAYS = 6;
+const MONTH_MS = 30 * 24 * 60 * 60 * 1000; // 30 hari = 1 bulan cicilan
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+function loadDB() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const db = JSON.parse(raw);
+      if (db && Array.isArray(db.users)) return db;
+    }
+  } catch (e) {}
+  const seed = {
+    users: [{
+      rekening: '1000000001',
+      username: 'founder',
+      password: 'founder12',
+      role: 'founder',
+      balance: 100000000
+    }],
+    nextRek: 1000000002
+  };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(seed));
+  return seed;
+}
+
+function saveDB(db) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+}
+
+function findUser(query) {
+  const db = loadDB();
+  const q = String(query).trim().toLowerCase();
+  return db.users.find(u => String(u.rekening) === q || u.username.toLowerCase() === q) || null;
+}
+
+function formatRp(n) {
+  return 'Rp ' + Number(n).toLocaleString('id-ID');
+}
+
+function toast(msg, type) {
+  type = type || 'ok';
+  const el = document.getElementById('toast');
+  el.className = 'fixed top-4 right-4 z-50 toast glass rounded-xl px-5 py-3 text-sm font-medium ' +
+    (type === 'ok' ? 'border-cash-500/40 text-cash-300' : 'border-red-500/40 text-red-300');
+  el.textContent = msg;
+  el.classList.remove('hidden');
+  setTimeout(function() { el.classList.add('hidden'); }, 3200);
+}
+
+function currentUser() {
+  const id = sessionStorage.getItem('wc_session');
+  if (!id) return null;
+  return findUser(id);
+}
+
+// ========== AUTH ==========
+document.getElementById('tab-login').onclick = function() {
+  document.getElementById('tab-login').className = 'flex-1 py-2.5 rounded-lg text-sm font-medium transition-all bg-cash-600 text-white';
+  document.getElementById('tab-register').className = 'flex-1 py-2.5 rounded-lg text-sm font-medium transition-all text-slate-400 hover:text-white';
+  document.getElementById('form-login').classList.remove('hidden');
+  document.getElementById('form-register').classList.add('hidden');
+};
+
+document.getElementById('tab-register').onclick = function() {
+  document.getElementById('tab-register').className = 'flex-1 py-2.5 rounded-lg text-sm font-medium transition-all bg-cash-600 text-white';
+  document.getElementById('tab-login').className = 'flex-1 py-2.5 rounded-lg text-sm font-medium transition-all text-slate-400 hover:text-white';
+  document.getElementById('form-register').classList.remove('hidden');
+  document.getElementById('form-login').classList.add('hidden');
+};
+
+document.getElementById('form-register').onsubmit = function(e) {
+  e.preventDefault();
+  var user = document.getElementById('reg-user').value.trim();
+  var pass = document.getElementById('reg-pass').value;
+  var pass2 = document.getElementById('reg-pass2').value;
+  if (pass.length < 8) { toast('Password minimal 8 karakter', 'err'); return; }
+  if (pass !== pass2) { toast('Password tidak cocok', 'err'); return; }
+  if (findUser(user)) { toast('Username sudah dipakai', 'err'); return; }
+  var db = loadDB();
+  var rek = String(db.nextRek++);
+  db.users.push({
+    rekening: rek,
+    username: user,
+    password: pass,
+    role: 'member',
+    balance: STARTER_PACK
+  });
+  saveDB(db);
+  toast('Akun dibuat! Rekening: ' + rek + ' | Starter pack ' + formatRp(STARTER_PACK));
+  document.getElementById('form-register').reset();
+  document.getElementById('tab-login').click();
+};
+
+document.getElementById('form-login').onsubmit = function(e) {
+  e.preventDefault();
+  var q = document.getElementById('login-user').value.trim();
+  var pass = document.getElementById('login-pass').value;
+  var u = findUser(q);
+  if (!u || u.password !== pass) {
+    toast('Rekening/username atau password salah', 'err');
+    return;
+  }
+  sessionStorage.setItem('wc_session', u.rekening);
+  showDashboard();
+};
+
+document.getElementById('btn-logout').onclick = function() {
+  sessionStorage.removeItem('wc_session');
+  hideTrading();
+  hideRewardPage();
+  hideAxiomPage();
+  document.getElementById('dashboard').classList.add('hidden');
+  document.getElementById('auth-screen').classList.remove('hidden');
+};
+
+// ========== QRIS ==========
+var qrisQrInstance = null;
+
+function buildQrisPayload(u, amount) {
+  var parts = ['CASHAPP', 'QRIS', 'REK:' + u.rekening, 'NAME:' + u.username];
+  if (amount && amount > 0) parts.push('AMT:' + Math.floor(amount));
+  return parts.join('|');
+}
+
+function renderQris(u) {
+  if (!u) return;
+  var amount = Number(document.getElementById('qris-amount').value) || 0;
+  var payload = buildQrisPayload(u, amount);
+  document.getElementById('qris-payload').textContent = payload;
+  document.getElementById('qris-name').textContent = u.username;
+  document.getElementById('qris-nmid').textContent = 'NMID: ID' + String(u.rekening).slice(-8);
+
+  var box = document.getElementById('qris-canvas');
+  box.innerHTML = '';
+  try {
+    qrisQrInstance = new QRCode(box, {
+      text: payload,
+      width: 180,
+      height: 180,
+      colorDark: '#0f172a',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M
+    });
+  } catch (e) {
+    box.innerHTML = '<p class="text-xs text-red-500 p-4">Gagal generate QR</p>';
+  }
+}
+
+function parseQrisOrRekening(input) {
+  var raw = String(input).trim();
+  if (raw.indexOf('CASHAPP|QRIS|') === 0 || raw.indexOf('REK:') !== -1) {
+    var rek = '';
+    var amt = null;
+    var parts = raw.split('|');
+    for (var i = 0; i < parts.length; i++) {
+      if (parts[i].indexOf('REK:') === 0) rek = parts[i].slice(4);
+      if (parts[i].indexOf('AMT:') === 0) amt = Number(parts[i].slice(4));
+    }
+    return { rekening: rek, amount: amt };
+  }
+  return { rekening: raw, amount: null };
+}
+
+// ========== CARD ==========
+function cardNumberFromRek(rek) {
+  // nomor kartu stabil per rekening (pseudo-random, format 16 digit)
+  var s = String(rek);
+  var n = 0;
+  for (var i = 0; i < s.length; i++) n = ((n * 31) + s.charCodeAt(i)) >>> 0;
+  var parts = [];
+  for (var g = 0; g < 4; g++) {
+    n = (n * 1103515245 + 12345) >>> 0;
+    var seg = String(1000 + (n % 9000)).slice(-4);
+    parts.push(seg);
+  }
+  // prefix mirip debit BRI-style
+  parts[0] = '6013';
+  return parts.join(' ');
+}
+
+function cardExpiryFromRek(rek) {
+  var s = String(rek);
+  var n = 0;
+  for (var i = 0; i < s.length; i++) n = ((n * 17) + s.charCodeAt(i)) >>> 0;
+  var mm = String(1 + (n % 12)).padStart(2, '0');
+  var yy = String(28 + (n % 5));
+  return mm + '/' + yy;
+}
+
+// ========== LOAN ==========
+function calcLoan(amount, tenor) {
+  var bunga = Math.round(amount * LOAN_RATE * tenor);
+  var total = amount + bunga;
+  var cicilan = Math.ceil(total / tenor);
+  return { amount: amount, tenor: tenor, bunga: bunga, total: total, cicilan: cicilan };
+}
+
+function formatDate(ts) {
+  try {
+    return new Date(ts).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+  } catch (e) { return '—'; }
+}
+
+function processLoanLifecycle(u) {
+  if (!u) return u;
+  var now = Date.now();
+  var changed = false;
+
+  // Unfreeze after 6 days → saldo 0
+  if (u.frozen && u.unfreezeAt && now >= u.unfreezeAt) {
+    u.frozen = false;
+    u.unfreezeAt = null;
+    u.frozenAt = null;
+    u.balance = 0;
+    if (u.loan) u.loan = null;
+    changed = true;
+    toast('Pembekuan selesai. Saldo direset ke Rp 0', 'err');
+  }
+
+  // Auto cicilan when due
+  if (u.loan && u.loan.status === 'active' && !u.frozen) {
+    while (u.loan && u.loan.status === 'active' && now >= u.loan.nextDue) {
+      var pay = Math.min(u.loan.cicilan, u.loan.remaining);
+      if (u.balance >= pay) {
+        u.balance -= pay;
+        u.loan.remaining -= pay;
+        u.loan.paidMonths += 1;
+        if (u.loan.remaining <= 0) {
+          u.loan.status = 'paid';
+          u.loan.remaining = 0;
+          toast('Pinjaman lunas! Cicilan otomatis terpotong ' + formatRp(pay));
+          u.loan = null;
+        } else {
+          u.loan.nextDue += MONTH_MS;
+          toast('Cicilan otomatis ' + formatRp(pay) + ' terpotong');
+        }
+        changed = true;
+      } else {
+        // gagal bayar → beku 6 hari
+        u.frozen = true;
+        u.frozenAt = now;
+        u.unfreezeAt = now + (LOAN_FREEZE_DAYS * DAY_MS);
+        if (u.loan) u.loan.status = 'defaulted';
+        changed = true;
+        toast('Saldo kurang! Rekening dibekukan ' + LOAN_FREEZE_DAYS + ' hari', 'err');
+        break;
+      }
+    }
+  }
+
+  if (changed) {
+    var db = loadDB();
+    var idx = db.users.findIndex(function(x) { return x.rekening === u.rekening; });
+    if (idx !== -1) {
+      db.users[idx] = u;
+      saveDB(db);
+    }
+  }
+  return u;
+}
+
+function isUserFrozen(u) {
+  return !!(u && u.frozen);
+}
+
+function updateLoanUI(u) {
+  var badge = document.getElementById('loan-status-badge');
+  var applyBox = document.getElementById('loan-apply-box');
+  var activeBox = document.getElementById('loan-active-box');
+  var frozenBox = document.getElementById('loan-frozen-box');
+
+  applyBox.classList.add('hidden');
+  activeBox.classList.add('hidden');
+  frozenBox.classList.add('hidden');
+
+  if (u.frozen) {
+    badge.textContent = 'DIBEKUKAN';
+    badge.className = 'text-[10px] font-bold tracking-wide px-2.5 py-1 rounded-full bg-red-600 text-white';
+    frozenBox.classList.remove('hidden');
+    var sisa = u.unfreezeAt ? Math.max(0, Math.ceil((u.unfreezeAt - Date.now()) / DAY_MS)) : 0;
+    document.getElementById('loan-frozen-msg').textContent =
+      'Rekening tidak bisa digunakan. Sisa pembekuan ±' + sisa + ' hari. Setelah itu rekening aktif lagi dengan saldo Rp 0.';
+    return;
+  }
+
+  if (u.loan && u.loan.status === 'active') {
+    badge.textContent = 'AKTIF';
+    badge.className = 'text-[10px] font-bold tracking-wide px-2.5 py-1 rounded-full bg-orange-600 text-white';
+    activeBox.classList.remove('hidden');
+    document.getElementById('la-remaining').textContent = formatRp(u.loan.remaining);
+    document.getElementById('la-installment').textContent = formatRp(u.loan.cicilan);
+    document.getElementById('la-due').textContent = formatDate(u.loan.nextDue);
+    document.getElementById('la-progress').textContent = u.loan.paidMonths + ' / ' + u.loan.tenor + ' bulan';
+    var daysLeft = Math.ceil((u.loan.nextDue - Date.now()) / DAY_MS);
+    document.getElementById('loan-note').textContent =
+      daysLeft > 0
+        ? ('Cicilan berikutnya dalam ±' + daysLeft + ' hari. Saldo akan dipotong otomatis saat jatuh tempo.')
+        : 'Jatuh tempo tercapai — sistem akan memotong cicilan otomatis.';
+    return;
+  }
+
+  badge.textContent = 'TIDAK ADA';
+  badge.className = 'text-[10px] font-bold tracking-wide px-2.5 py-1 rounded-full bg-slate-700 text-slate-300';
+  applyBox.classList.remove('hidden');
+  updateLoanPreview();
+}
+
+function updateLoanPreview() {
+  var amount = Number(document.getElementById('loan-amount').value) || 0;
+  var tenor = Number(document.getElementById('loan-tenor').value) || 1;
+  var box = document.getElementById('loan-preview');
+  if (amount < LOAN_MIN || amount > LOAN_MAX) {
+    box.classList.add('hidden');
+    return;
+  }
+  var c = calcLoan(amount, tenor);
+  box.classList.remove('hidden');
+  document.getElementById('lp-pokok').textContent = formatRp(c.amount);
+  document.getElementById('lp-bunga').textContent = formatRp(c.bunga);
+  document.getElementById('lp-total').textContent = formatRp(c.total);
+  document.getElementById('lp-cicilan').textContent = formatRp(c.cicilan);
+}
+
+// ========== DASHBOARD ==========
+function showDashboard() {
+  var u = currentUser();
+  if (!u) return;
+  u = processLoanLifecycle(u);
+  // refresh from storage after lifecycle
+  u = currentUser();
+  if (!u) return;
+
+  document.getElementById('auth-screen').classList.add('hidden');
+  document.getElementById('dashboard').classList.remove('hidden');
+  document.getElementById('nav-user').textContent = u.username;
+  document.getElementById('rekening-display').textContent = u.rekening;
+  document.getElementById('balance-display').textContent = formatRp(u.balance);
+
+  // Kartu virtual
+  document.getElementById('card-number').textContent = cardNumberFromRek(u.rekening);
+  document.getElementById('card-holder').textContent = u.username;
+  document.getElementById('card-expiry').textContent = cardExpiryFromRek(u.rekening);
+
+  // QRIS
+  renderQris(u);
+
+  // Loan UI
+  updateLoanUI(u);
+
+  var roleEl = document.getElementById('nav-role');
+  roleEl.textContent = u.role.toUpperCase();
+  roleEl.className = 'text-xs font-medium px-2.5 py-1 rounded-full text-white role-badge-' + u.role;
+
+  var rank = ROLE_RANK[u.role] || 1;
+  document.getElementById('panel-admin').classList.toggle('hidden', rank < 2);
+  document.getElementById('panel-owner').classList.toggle('hidden', rank < 3);
+  document.getElementById('panel-founder').classList.toggle('hidden', rank < 4);
+  document.getElementById('panel-users').classList.toggle('hidden', rank < 2);
+
+  if (rank >= 2) renderUserTable();
+
+  // Block key actions if frozen
+  var frozen = isUserFrozen(u);
+  ['btn-transfer', 'btn-loan-apply', 'btn-loan-pay', 'btn-loan-payoff'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.disabled = frozen;
+  });
+}
+
+function renderUserTable() {
+  var db = loadDB();
+  var tbody = document.getElementById('user-table-body');
+  tbody.innerHTML = db.users.map(function(u) {
+    return '<tr class="border-b border-slate-800/60">' +
+      '<td class="py-3 font-mono text-slate-300">' + u.rekening + '</td>' +
+      '<td class="py-3">' + u.username + '</td>' +
+      '<td class="py-3"><span class="text-xs px-2 py-0.5 rounded-full text-white role-badge-' + u.role + '">' + u.role + '</span></td>' +
+      '<td class="py-3 text-right font-medium">' + formatRp(u.balance) + '</td>' +
+      '</tr>';
+  }).join('');
+}
+
+function mutateUser(query, fn) {
+  var db = loadDB();
+  var q = String(query).trim().toLowerCase();
+  var idx = db.users.findIndex(function(u) {
+    return String(u.rekening) === q || u.username.toLowerCase() === q;
+  });
+  if (idx === -1) { toast('User / rekening tidak ditemukan', 'err'); return false; }
+  try {
+    fn(db.users[idx], db);
+    saveDB(db);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+// QRIS controls
+document.getElementById('btn-qris-refresh').onclick = function() {
+  var u = currentUser();
+  if (!u) return;
+  renderQris(u);
+  toast('QRIS di-update');
+};
+
+document.getElementById('btn-qris-download').onclick = function() {
+  var u = currentUser();
+  if (!u) return;
+  var canvas = document.querySelector('#qris-canvas canvas');
+  var img = document.querySelector('#qris-canvas img');
+  var dataUrl = null;
+  if (canvas) dataUrl = canvas.toDataURL('image/png');
+  else if (img) dataUrl = img.src;
+  if (!dataUrl) { toast('Generate QR dulu', 'err'); return; }
+
+  // Compose nicer download card
+  var out = document.createElement('canvas');
+  out.width = 360;
+  out.height = 420;
+  var ctx = out.getContext('2d');
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, out.width, out.height);
+  ctx.fillStyle = '#dc2626';
+  ctx.font = 'bold 16px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('QRIS • Cash App', out.width / 2, 36);
+  var qrImg = new Image();
+  qrImg.onload = function() {
+    ctx.drawImage(qrImg, 60, 55, 240, 240);
+    ctx.fillStyle = '#0f172a';
+    ctx.font = 'bold 14px sans-serif';
+    ctx.fillText(u.username.toUpperCase(), out.width / 2, 320);
+    ctx.font = '12px monospace';
+    ctx.fillStyle = '#64748b';
+    ctx.fillText('Rekening: ' + u.rekening, out.width / 2, 345);
+    var amt = Number(document.getElementById('qris-amount').value) || 0;
+    if (amt > 0) {
+      ctx.fillStyle = '#059669';
+      ctx.font = 'bold 13px sans-serif';
+      ctx.fillText(formatRp(amt), out.width / 2, 370);
+    }
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '10px sans-serif';
+    ctx.fillText('Simulasi QRIS Wallet Cash App', out.width / 2, 400);
+    var a = document.createElement('a');
+    a.href = out.toDataURL('image/png');
+    a.download = 'QRIS-' + u.username + '-' + u.rekening + '.png';
+    a.click();
+    toast('QRIS diunduh');
+  };
+  qrImg.src = dataUrl;
+};
+
+document.getElementById('btn-qris-copy').onclick = function() {
+  var u = currentUser();
+  if (!u) return;
+  var text = u.rekening;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function() {
+      toast('Rekening disalin: ' + text);
+    }).catch(function() {
+      toast(text);
+    });
+  } else {
+    toast('Rekening: ' + text);
+  }
+};
+
+document.getElementById('qris-amount').addEventListener('change', function() {
+  var u = currentUser();
+  if (u) renderQris(u);
+});
+
+// Upload & decode QRIS image
+document.getElementById('tf-qris-file').onchange = function(e) {
+  var file = e.target.files && e.target.files[0];
+  if (!file) return;
+  var status = document.getElementById('tf-qris-status');
+  status.textContent = 'Membaca QR...';
+  status.className = 'text-xs text-amber-400';
+
+  var reader = new FileReader();
+  reader.onload = function() {
+    var img = new Image();
+    img.onload = function() {
+      var canvas = document.getElementById('tf-qris-preview');
+      var max = 240;
+      var scale = Math.min(1, max / Math.max(img.width, img.height));
+      canvas.width = Math.floor(img.width * scale);
+      canvas.height = Math.floor(img.height * scale);
+      canvas.classList.remove('hidden');
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+      // decode at full resolution for better accuracy
+      var full = document.createElement('canvas');
+      full.width = img.width;
+      full.height = img.height;
+      var fctx = full.getContext('2d');
+      fctx.drawImage(img, 0, 0);
+      var imageData = fctx.getImageData(0, 0, full.width, full.height);
+      var code = null;
+      try {
+        code = jsQR(imageData.data, imageData.width, imageData.height);
+      } catch (err) {}
+
+      if (!code || !code.data) {
+        status.textContent = 'QR tidak terbaca. Coba foto lebih jelas.';
+        status.className = 'text-xs text-red-400';
+        toast('Gagal baca QRIS', 'err');
+        return;
+      }
+
+      var parsed = parseQrisOrRekening(code.data);
+      if (!parsed.rekening) {
+        status.textContent = 'Payload QR tidak valid';
+        status.className = 'text-xs text-red-400';
+        toast('QR bukan QRIS Cash App', 'err');
+        return;
+      }
+
+      var targetUser = findUser(parsed.rekening);
+      document.getElementById('tf-rekening').value = parsed.rekening;
+      if (parsed.amount && parsed.amount > 0) {
+        document.getElementById('tf-amount').value = parsed.amount;
+      }
+      status.textContent = targetUser
+        ? ('QRIS: ' + targetUser.username + ' (' + parsed.rekening + ')')
+        : ('Rekening: ' + parsed.rekening);
+      status.className = 'text-xs text-cash-400';
+      toast('QRIS terbaca: ' + parsed.rekening);
+    };
+    img.onerror = function() {
+      status.textContent = 'Gagal load gambar';
+      status.className = 'text-xs text-red-400';
+    };
+    img.src = reader.result;
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+};
+
+// Loan events
+document.getElementById('loan-amount').addEventListener('input', updateLoanPreview);
+document.getElementById('loan-tenor').addEventListener('change', updateLoanPreview);
+
+document.getElementById('btn-loan-apply').onclick = function() {
+  var me = currentUser();
+  if (!me) return;
+  if (isUserFrozen(me)) { toast('Rekening dibekukan', 'err'); return; }
+  if (me.loan && me.loan.status === 'active') { toast('Masih ada pinjaman aktif', 'err'); return; }
+  var amount = Number(document.getElementById('loan-amount').value);
+  var tenor = Number(document.getElementById('loan-tenor').value) || 1;
+  if (!amount || amount < LOAN_MIN || amount > LOAN_MAX) {
+    toast('Pinjaman Rp 100.000 – 10.000.000', 'err');
+    return;
+  }
+  if (tenor < 1 || tenor > 3) { toast('Tenor 1–3 bulan', 'err'); return; }
+  var c = calcLoan(amount, tenor);
+  var now = Date.now();
+  var ok = mutateUser(me.rekening, function(u) {
+    if (u.loan && u.loan.status === 'active') throw new Error('skip');
+    u.balance += c.amount;
+    u.loan = {
+      amount: c.amount,
+      tenor: c.tenor,
+      bunga: c.bunga,
+      total: c.total,
+      cicilan: c.cicilan,
+      remaining: c.total,
+      paidMonths: 0,
+      status: 'active',
+      startedAt: now,
+      nextDue: now + MONTH_MS
+    };
+  });
+  if (ok) {
+    toast('Pinjaman ' + formatRp(c.amount) + ' cair! Cicilan ' + formatRp(c.cicilan) + '/bulan');
+    document.getElementById('loan-amount').value = '';
+    showDashboard();
+  }
+};
+
+document.getElementById('btn-loan-pay').onclick = function() {
+  var me = currentUser();
+  if (!me || !me.loan || me.loan.status !== 'active') return;
+  if (isUserFrozen(me)) { toast('Rekening dibekukan', 'err'); return; }
+  var pay = Math.min(me.loan.cicilan, me.loan.remaining);
+  if (me.balance < pay) {
+    // gagal → beku
+    mutateUser(me.rekening, function(u) {
+      u.frozen = true;
+      u.frozenAt = Date.now();
+      u.unfreezeAt = Date.now() + (LOAN_FREEZE_DAYS * DAY_MS);
+      if (u.loan) u.loan.status = 'defaulted';
+    });
+    toast('Saldo kurang! Rekening dibekukan ' + LOAN_FREEZE_DAYS + ' hari', 'err');
+    showDashboard();
+    return;
+  }
+  var ok = mutateUser(me.rekening, function(u) {
+    var p = Math.min(u.loan.cicilan, u.loan.remaining);
+    u.balance -= p;
+    u.loan.remaining -= p;
+    u.loan.paidMonths += 1;
+    if (u.loan.remaining <= 0) {
+      u.loan = null;
+    } else {
+      u.loan.nextDue = Date.now() + MONTH_MS;
+    }
+  });
+  if (ok) {
+    toast('Cicilan ' + formatRp(pay) + ' berhasil');
+    showDashboard();
+  }
+};
+
+document.getElementById('btn-loan-payoff').onclick = function() {
+  var me = currentUser();
+  if (!me || !me.loan || me.loan.status !== 'active') return;
+  if (isUserFrozen(me)) { toast('Rekening dibekukan', 'err'); return; }
+  var sisa = me.loan.remaining;
+  if (me.balance < sisa) { toast('Saldo tidak cukup untuk pelunasan', 'err'); return; }
+  var ok = mutateUser(me.rekening, function(u) {
+    u.balance -= u.loan.remaining;
+    u.loan = null;
+  });
+  if (ok) {
+    toast('Pelunasan ' + formatRp(sisa) + ' berhasil. Pinjaman lunas!');
+    showDashboard();
+  }
+};
+
+// Transfer (support paste payload QRIS)
+document.getElementById('btn-transfer').onclick = function() {
+  var me = currentUser();
+  if (!me) return;
+  if (isUserFrozen(me)) { toast('Rekening dibekukan, tidak bisa transfer', 'err'); return; }
+  var parsed = parseQrisOrRekening(document.getElementById('tf-rekening').value);
+  var target = parsed.rekening;
+  var amount = Number(document.getElementById('tf-amount').value);
+  if (parsed.amount && (!amount || amount < 1)) amount = parsed.amount;
+  if (!target || amount < 1) { toast('Isi rekening & jumlah valid', 'err'); return; }
+  if (me.balance < amount) { toast('Saldo tidak cukup', 'err'); return; }
+  if (me.rekening === target || me.username.toLowerCase() === target.toLowerCase()) {
+    toast('Tidak bisa transfer ke diri sendiri', 'err'); return;
+  }
+  var ok = mutateUser(target, function(u, db) {
+    var meIdx = db.users.findIndex(function(x) { return x.rekening === me.rekening; });
+    if (meIdx === -1) throw new Error('skip');
+    db.users[meIdx].balance -= amount;
+    u.balance += amount;
+  });
+  if (ok) {
+    toast('Transfer ' + formatRp(amount) + ' berhasil');
+    document.getElementById('tf-rekening').value = '';
+    document.getElementById('tf-amount').value = '';
+    showDashboard();
+  }
+};
+
+// Admin add
+document.getElementById('btn-admin-add').onclick = function() {
+  var me = currentUser();
+  if (!me || (ROLE_RANK[me.role] || 0) < 2) return;
+  var target = document.getElementById('admin-target').value.trim();
+  var amount = Number(document.getElementById('admin-amount').value);
+  if (!target || amount < 1) { toast('Isi target & jumlah', 'err'); return; }
+  if (mutateUser(target, function(u) { u.balance += amount; })) {
+    toast('+' + formatRp(amount) + ' ke ' + target);
+    document.getElementById('admin-target').value = '';
+    document.getElementById('admin-amount').value = '';
+    showDashboard();
+  }
+};
+
+// Owner add
+document.getElementById('btn-owner-add').onclick = function() {
+  var me = currentUser();
+  if (!me || (ROLE_RANK[me.role] || 0) < 3) return;
+  var target = document.getElementById('owner-target').value.trim();
+  var amount = Number(document.getElementById('owner-amount').value);
+  if (!target || amount < 1) { toast('Isi target & jumlah', 'err'); return; }
+  if (mutateUser(target, function(u) { u.balance += amount; })) {
+    toast('+' + formatRp(amount) + ' ke ' + target);
+    document.getElementById('owner-target').value = '';
+    document.getElementById('owner-amount').value = '';
+    showDashboard();
+  }
+};
+
+// Owner demote
+document.getElementById('btn-owner-demote').onclick = function() {
+  var me = currentUser();
+  if (!me || (ROLE_RANK[me.role] || 0) < 3) return;
+  var target = document.getElementById('owner-demote').value.trim();
+  if (!target) { toast('Isi rekening admin', 'err'); return; }
+  var ok = mutateUser(target, function(u) {
+    if (u.role !== 'admin') { toast('Target bukan Admin', 'err'); throw new Error('skip'); }
+    u.role = 'member';
+  });
+  if (ok) {
+    toast(target + ' sekarang Member');
+    document.getElementById('owner-demote').value = '';
+    showDashboard();
+  }
+};
+
+// Founder create Admin / Owner
+document.getElementById('btn-founder-create').onclick = function() {
+  var me = currentUser();
+  if (!me || (ROLE_RANK[me.role] || 0) < 4) return;
+  var user = document.getElementById('founder-new-user').value.trim();
+  var pass = document.getElementById('founder-new-pass').value;
+  var role = document.getElementById('founder-new-role').value;
+  if (!user) { toast('Isi username', 'err'); return; }
+  if (pass.length < 8) { toast('Password minimal 8 karakter', 'err'); return; }
+  if (role !== 'admin' && role !== 'owner') { toast('Role tidak valid', 'err'); return; }
+  if (findUser(user)) { toast('Username sudah dipakai', 'err'); return; }
+  var db = loadDB();
+  var rek = String(db.nextRek++);
+  db.users.push({
+    rekening: rek,
+    username: user,
+    password: pass,
+    role: role,
+    balance: STARTER_PACK
+  });
+  saveDB(db);
+  toast('Akun ' + role.toUpperCase() + ' dibuat! Rekening: ' + rek);
+  document.getElementById('founder-new-user').value = '';
+  document.getElementById('founder-new-pass').value = '';
+  showDashboard();
+};
+
+// Founder add
+document.getElementById('btn-founder-add').onclick = function() {
+  var me = currentUser();
+  if (!me || (ROLE_RANK[me.role] || 0) < 4) return;
+  var target = document.getElementById('founder-target').value.trim();
+  var amount = Number(document.getElementById('founder-amount').value);
+  if (!target || amount < 1) { toast('Isi target & jumlah', 'err'); return; }
+  if (mutateUser(target, function(u) { u.balance += amount; })) {
+    toast('+' + formatRp(amount) + ' ke ' + target);
+    showDashboard();
+  }
+};
+
+// Founder subtract
+document.getElementById('btn-founder-sub').onclick = function() {
+  var me = currentUser();
+  if (!me || (ROLE_RANK[me.role] || 0) < 4) return;
+  var target = document.getElementById('founder-target').value.trim();
+  var amount = Number(document.getElementById('founder-amount').value);
+  if (!target || amount < 1) { toast('Isi target & jumlah', 'err'); return; }
+  var ok = mutateUser(target, function(u) {
+    if (u.role !== 'member') { toast('Hanya bisa kurangi saldo Member', 'err'); throw new Error('skip'); }
+    if (u.balance < amount) { toast('Saldo target tidak cukup', 'err'); throw new Error('skip'); }
+    u.balance -= amount;
+  });
+  if (ok) {
+    toast('-' + formatRp(amount) + ' dari ' + target);
+    showDashboard();
+  }
+};
+
+// Founder demote
+document.getElementById('btn-founder-demote').onclick = function() {
+  var me = currentUser();
+  if (!me || (ROLE_RANK[me.role] || 0) < 4) return;
+  var target = document.getElementById('founder-demote').value.trim();
+  if (!target) { toast('Isi rekening target', 'err'); return; }
+  var ok = mutateUser(target, function(u) {
+    if (u.role !== 'admin' && u.role !== 'owner' && u.role !== 'founder') {
+      toast('Hanya Admin / Owner / Founder yang bisa di-copot', 'err');
+      throw new Error('skip');
+    }
+    if (u.rekening === me.rekening) {
+      toast('Tidak bisa demote diri sendiri', 'err');
+      throw new Error('skip');
+    }
+    u.role = 'member';
+  });
+  if (ok) {
+    toast(target + ' sekarang Member');
+    document.getElementById('founder-demote').value = '';
+    showDashboard();
+  }
+};
+
+// ========== TRADING ==========
+var TRADE_ASSETS = {
+  BTC:  { name: 'Bitcoin',  unit: 'BTC',  base: 1450000000, vol: 0.012 },
+  ETH:  { name: 'Ethereum', unit: 'ETH',  base: 48000000,   vol: 0.015 },
+  SOL:  { name: 'Solana',   unit: 'SOL',  base: 2800000,    vol: 0.02 },
+  GOLD: { name: 'Emas',     unit: 'gram', base: 1450000,    vol: 0.006 }
+};
+var tradePrices = {};
+var tradePrev = {};
+var tradeTimer = null;
+var TRADE_FEE = 0.001; // 0.1%
+
+Object.keys(TRADE_ASSETS).forEach(function(k) {
+  tradePrices[k] = TRADE_ASSETS[k].base;
+  tradePrev[k] = TRADE_ASSETS[k].base;
+});
+
+function tickPrices() {
+  Object.keys(TRADE_ASSETS).forEach(function(k) {
+    tradePrev[k] = tradePrices[k];
+    var vol = TRADE_ASSETS[k].vol;
+    var change = (Math.random() - 0.48) * vol; // slight upward bias
+    tradePrices[k] = Math.max(TRADE_ASSETS[k].base * 0.5, Math.round(tradePrices[k] * (1 + change)));
+  });
+  if (!document.getElementById('trading-page').classList.contains('hidden')) {
+    renderMarketCards();
+    updateTradeForm();
+    renderPortfolio();
+  }
+}
+
+function startTradeTicker() {
+  if (tradeTimer) return;
+  tradeTimer = setInterval(tickPrices, 2500);
+}
+
+function stopTradeTicker() {
+  if (tradeTimer) { clearInterval(tradeTimer); tradeTimer = null; }
+}
+
+function ensurePortfolio(u) {
+  if (!u.portfolio) u.portfolio = {};
+  if (!u.trades) u.trades = [];
+  Object.keys(TRADE_ASSETS).forEach(function(k) {
+    if (!u.portfolio[k]) u.portfolio[k] = { qty: 0, avg: 0 };
+  });
+}
+
+function renderMarketCards() {
+  var box = document.getElementById('market-cards');
+  if (!box) return;
+  box.innerHTML = Object.keys(TRADE_ASSETS).map(function(k) {
+    var p = tradePrices[k];
+    var prev = tradePrev[k] || p;
+    var pct = prev ? ((p - prev) / prev) * 100 : 0;
+    var up = pct >= 0;
+    return '<div class="glass rounded-xl p-3">' +
+      '<div class="flex justify-between items-start mb-1">' +
+      '<span class="text-xs font-bold text-slate-200">' + k + '</span>' +
+      '<span class="text-[10px] ' + (up ? 'text-cash-400' : 'text-red-400') + '">' + (up ? '+' : '') + pct.toFixed(2) + '%</span>' +
+      '</div>' +
+      '<p class="text-sm font-mono font-semibold">' + formatRp(p) + '</p>' +
+      '<p class="text-[10px] text-slate-500 mt-0.5">' + TRADE_ASSETS[k].name + '</p>' +
+      '</div>';
+  }).join('');
+}
+
+function updateTradeForm() {
+  var asset = document.getElementById('trade-asset').value;
+  var price = tradePrices[asset] || 0;
+  document.getElementById('trade-price').textContent = formatRp(price);
+  var qty = Number(document.getElementById('trade-qty').value) || 0;
+  var est = qty * price;
+  var fee = est * TRADE_FEE;
+  document.getElementById('trade-est').textContent = formatRp(est) + ' (+fee ' + formatRp(fee) + ')';
+}
+
+function renderPortfolio() {
+  var u = currentUser();
+  if (!u) return;
+  ensurePortfolio(u);
+  document.getElementById('trade-balance').textContent = formatRp(u.balance);
+  var tbody = document.getElementById('port-body');
+  var rows = [];
+  var totalVal = 0;
+  Object.keys(TRADE_ASSETS).forEach(function(k) {
+    var pos = u.portfolio[k];
+    if (!pos || pos.qty <= 0) return;
+    var price = tradePrices[k];
+    var val = pos.qty * price;
+    totalVal += val;
+    var cost = pos.qty * pos.avg;
+    var pl = val - cost;
+    var plPct = cost > 0 ? (pl / cost) * 100 : 0;
+    var plCls = pl >= 0 ? 'text-cash-400' : 'text-red-400';
+    rows.push('<tr class="border-b border-slate-800/50">' +
+      '<td class="py-2.5 font-medium">' + k + '</td>' +
+      '<td class="py-2.5 text-right font-mono text-xs">' + pos.qty.toFixed(6) + '</td>' +
+      '<td class="py-2.5 text-right font-mono text-xs text-slate-400">' + formatRp(Math.round(pos.avg)) + '</td>' +
+      '<td class="py-2.5 text-right font-mono text-xs">' + formatRp(price) + '</td>' +
+      '<td class="py-2.5 text-right font-mono text-xs ' + plCls + '">' + (pl >= 0 ? '+' : '') + formatRp(Math.round(pl)) + ' (' + plPct.toFixed(1) + '%)</td>' +
+      '</tr>');
+  });
+  tbody.innerHTML = rows.length ? rows.join('') : '<tr><td colspan="5" class="py-6 text-center text-slate-500 text-xs">Belum ada posisi</td></tr>';
+  document.getElementById('port-value').textContent = formatRp(Math.round(totalVal));
+
+  var hist = document.getElementById('trade-history-body');
+  var trades = (u.trades || []).slice().reverse().slice(0, 30);
+  if (!trades.length) {
+    hist.innerHTML = '<tr><td colspan="6" class="py-4 text-center text-slate-500 text-xs">Belum ada transaksi</td></tr>';
+  } else {
+    hist.innerHTML = trades.map(function(t) {
+      var sideCls = t.side === 'BUY' ? 'text-cash-400' : 'text-red-400';
+      return '<tr class="border-b border-slate-800/40 text-xs">' +
+        '<td class="py-2 text-slate-500">' + new Date(t.ts).toLocaleString('id-ID') + '</td>' +
+        '<td class="py-2 font-semibold ' + sideCls + '">' + t.side + '</td>' +
+        '<td class="py-2">' + t.asset + '</td>' +
+        '<td class="py-2 text-right font-mono">' + t.qty.toFixed(6) + '</td>' +
+        '<td class="py-2 text-right font-mono">' + formatRp(t.price) + '</td>' +
+        '<td class="py-2 text-right font-mono">' + formatRp(t.total) + '</td>' +
+        '</tr>';
+    }).join('');
+  }
+}
+
+function showTrading() {
+  var u = currentUser();
+  if (!u) return;
+  if (isUserFrozen(u)) { toast('Rekening dibekukan', 'err'); return; }
+  document.getElementById('dashboard').classList.add('hidden');
+  hideRewardPage();
+  if (typeof hideAxiomPage === 'function') hideAxiomPage();
+  document.getElementById('trading-page').classList.remove('hidden');
+  startTradeTicker();
+  renderMarketCards();
+  updateTradeForm();
+  renderPortfolio();
+}
+
+function hideTrading() {
+  document.getElementById('trading-page').classList.add('hidden');
+  stopTradeTicker();
+}
+
+document.getElementById('btn-goto-trade').onclick = function() { showTrading(); };
+document.getElementById('btn-back-dash').onclick = function() {
+  hideTrading();
+  showDashboard();
+};
+document.getElementById('btn-logout-trade').onclick = function() {
+  hideTrading();
+  document.getElementById('btn-logout').click();
+};
+document.getElementById('trade-asset').onchange = updateTradeForm;
+document.getElementById('trade-qty').oninput = updateTradeForm;
+
+document.getElementById('btn-trade-buy').onclick = function() {
+  var me = currentUser();
+  if (!me) return;
+  if (isUserFrozen(me)) { toast('Rekening dibekukan', 'err'); return; }
+  var asset = document.getElementById('trade-asset').value;
+  var qty = Number(document.getElementById('trade-qty').value);
+  var price = tradePrices[asset];
+  if (!qty || qty <= 0) { toast('Isi jumlah valid', 'err'); return; }
+  var cost = qty * price;
+  var fee = cost * TRADE_FEE;
+  var total = cost + fee;
+  if (me.balance < total) { toast('Saldo tidak cukup', 'err'); return; }
+  var ok = mutateUser(me.rekening, function(u) {
+    ensurePortfolio(u);
+    u.balance -= total;
+    var pos = u.portfolio[asset];
+    var newQty = pos.qty + qty;
+    pos.avg = newQty > 0 ? ((pos.qty * pos.avg) + cost) / newQty : price;
+    pos.qty = newQty;
+    u.trades.push({ ts: Date.now(), side: 'BUY', asset: asset, qty: qty, price: price, total: Math.round(total) });
+  });
+  if (ok) {
+    toast('Beli ' + qty + ' ' + asset + ' @ ' + formatRp(price));
+    document.getElementById('trade-qty').value = '';
+    updateTradeForm();
+    renderPortfolio();
+  }
+};
+
+document.getElementById('btn-trade-sell').onclick = function() {
+  var me = currentUser();
+  if (!me) return;
+  if (isUserFrozen(me)) { toast('Rekening dibekukan', 'err'); return; }
+  ensurePortfolio(me);
+  var asset = document.getElementById('trade-asset').value;
+  var qty = Number(document.getElementById('trade-qty').value);
+  var price = tradePrices[asset];
+  if (!qty || qty <= 0) { toast('Isi jumlah valid', 'err'); return; }
+  if (!me.portfolio[asset] || me.portfolio[asset].qty < qty) { toast('Qty tidak cukup', 'err'); return; }
+  var proceeds = qty * price;
+  var fee = proceeds * TRADE_FEE;
+  var net = proceeds - fee;
+  var ok = mutateUser(me.rekening, function(u) {
+    ensurePortfolio(u);
+    u.portfolio[asset].qty -= qty;
+    if (u.portfolio[asset].qty <= 1e-12) { u.portfolio[asset].qty = 0; u.portfolio[asset].avg = 0; }
+    u.balance += net;
+    u.trades.push({ ts: Date.now(), side: 'SELL', asset: asset, qty: qty, price: price, total: Math.round(net) });
+  });
+  if (ok) {
+    toast('Jual ' + qty + ' ' + asset + ' @ ' + formatRp(price));
+    document.getElementById('trade-qty').value = '';
+    updateTradeForm();
+    renderPortfolio();
+  }
+};
+
+// ========== DAILY REWARD ==========
+var DAILY_REWARDS = [
+  10000,     // hari 1
+  25000,     // hari 2
+  50000,     // hari 3
+  100000,    // hari 4
+  250000,    // hari 5
+  500000,    // hari 6
+  1000000    // hari 7
+];
+
+function todayKey() {
+  var d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+function yesterdayKey() {
+  var d = new Date();
+  d.setDate(d.getDate() - 1);
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+function getRewardState(u) {
+  var last = u.dailyLastClaim || null;
+  var streak = u.dailyStreak || 0;
+  var today = todayKey();
+  var yest = yesterdayKey();
+
+  // Jika last claim bukan hari ini dan bukan kemarin → streak putus
+  if (last && last !== today && last !== yest) {
+    streak = 0;
+  }
+
+  var claimedToday = last === today;
+  var nextDay; // 1-7 yang akan diklaim
+  if (claimedToday) {
+    nextDay = streak; // sudah klaim hari ini, streak = hari yang baru diklaim
+  } else {
+    nextDay = streak >= 7 ? 1 : streak + 1;
+    if (streak >= 7 && last === yest) nextDay = 1; // setelah hari 7, mulai lagi
+    if (streak === 0) nextDay = 1;
+  }
+
+  return {
+    streak: streak,
+    last: last,
+    claimedToday: claimedToday,
+    nextDay: claimedToday ? (streak >= 7 ? 1 : streak + 1) : nextDay,
+    claimDay: claimedToday ? streak : nextDay
+  };
+}
+
+function renderRewardPage() {
+  var u = currentUser();
+  if (!u) return;
+  document.getElementById('reward-balance').textContent = formatRp(u.balance);
+  var st = getRewardState(u);
+
+  var claimDay = st.claimedToday ? st.streak : st.nextDay;
+  if (claimDay < 1) claimDay = 1;
+  if (claimDay > 7) claimDay = 7;
+
+  document.getElementById('reward-streak-label').textContent =
+    st.claimedToday ? ('Hari ' + st.streak + ' ✓') : ('Hari ' + st.nextDay);
+
+  var btn = document.getElementById('btn-claim-reward');
+  if (st.claimedToday) {
+    document.getElementById('reward-status-text').textContent = 'Sudah klaim hari ini. Kembali besok!';
+    btn.disabled = true;
+    btn.textContent = 'Sudah diklaim';
+    document.getElementById('reward-next-hint').textContent =
+      'Hadiah berikutnya: Hari ' + st.nextDay + ' — ' + formatRp(DAILY_REWARDS[st.nextDay - 1]);
+  } else {
+    var amt = DAILY_REWARDS[st.nextDay - 1];
+    document.getElementById('reward-status-text').textContent = 'Klaim ' + formatRp(amt) + ' sekarang';
+    btn.disabled = false;
+    btn.textContent = 'Klaim ' + formatRp(amt);
+    document.getElementById('reward-next-hint').textContent =
+      st.streak > 0 ? ('Streak berjalan: ' + st.streak + ' hari') : 'Mulai streak dari Hari 1';
+  }
+
+  var grid = document.getElementById('reward-days-grid');
+  grid.innerHTML = DAILY_REWARDS.map(function(amt, i) {
+    var day = i + 1;
+    var done = st.streak >= day || (st.claimedToday && st.streak >= day);
+    var current = !st.claimedToday && st.nextDay === day;
+    var cls = 'rounded-2xl p-4 border text-center transition-all ';
+    if (done) cls += 'bg-cash-500/10 border-cash-500/40';
+    else if (current) cls += 'bg-amber-500/15 border-amber-500/50 ring-2 ring-amber-500/30';
+    else cls += 'bg-dark-900/60 border-slate-800';
+    return '<div class="' + cls + '">' +
+      '<p class="text-[10px] uppercase tracking-wider text-slate-500 mb-1">Hari ' + day + '</p>' +
+      '<p class="text-sm font-bold ' + (day === 7 ? 'text-amber-300' : 'text-slate-100') + '">' + formatRp(amt) + '</p>' +
+      (done ? '<p class="text-[10px] text-cash-400 mt-1">✓</p>' : (current ? '<p class="text-[10px] text-amber-400 mt-1">Sekarang</p>' : '<p class="text-[10px] text-slate-600 mt-1">—</p>')) +
+      '</div>';
+  }).join('');
+}
+
+function showRewardPage() {
+  var u = currentUser();
+  if (!u) return;
+  if (isUserFrozen(u)) { toast('Rekening dibekukan', 'err'); return; }
+  document.getElementById('dashboard').classList.add('hidden');
+  document.getElementById('trading-page').classList.add('hidden');
+  if (typeof hideAxiomPage === 'function') hideAxiomPage();
+  document.getElementById('reward-page').classList.remove('hidden');
+  renderRewardPage();
+}
+
+function hideRewardPage() {
+  document.getElementById('reward-page').classList.add('hidden');
+}
+
+document.getElementById('btn-goto-reward').onclick = function() { showRewardPage(); };
+document.getElementById('btn-back-dash-reward').onclick = function() {
+  hideRewardPage();
+  showDashboard();
+};
+
+document.getElementById('btn-claim-reward').onclick = function() {
+  var me = currentUser();
+  if (!me) return;
+  if (isUserFrozen(me)) { toast('Rekening dibekukan', 'err'); return; }
+  var st = getRewardState(me);
+  if (st.claimedToday) { toast('Sudah klaim hari ini', 'err'); return; }
+
+  var day = st.nextDay;
+  if (day < 1 || day > 7) day = 1;
+  var amount = DAILY_REWARDS[day - 1];
+
+  var ok = mutateUser(me.rekening, function(u) {
+    var last = u.dailyLastClaim || null;
+    var streak = u.dailyStreak || 0;
+    var today = todayKey();
+    var yest = yesterdayKey();
+    if (last === today) throw new Error('skip');
+    if (last === yest) {
+      streak = streak >= 7 ? 1 : streak + 1;
+    } else {
+      streak = 1;
+    }
+    u.dailyStreak = streak;
+    u.dailyLastClaim = today;
+    u.balance += amount;
+  });
+
+  if (ok) {
+    toast('Claim Hari ' + day + ': +' + formatRp(amount));
+    renderRewardPage();
+  }
+};
+
+// ========== AXIOM TERMINAL ==========
+var AX_TOKENS = {
+  PEPE:  { name: 'Pepe',     base: 12,      vol: 0.08,  tag: 'meme',    mc: 4200000000 },
+  WIF:   { name: 'dogwifhat', base: 28000,  vol: 0.07,  tag: 'meme',    mc: 2800000000 },
+  BONK:  { name: 'Bonk',     base: 0.45,    vol: 0.09,  tag: 'meme',    mc: 1900000000 },
+  POPCAT:{ name: 'Popcat',   base: 18500,   vol: 0.1,   tag: 'meme',    mc: 1800000000 },
+  MEW:   { name: 'cat in a dogs world', base: 95, vol: 0.11, tag: 'meme', mc: 850000000 },
+  SOL:   { name: 'Solana',   base: 2800000, vol: 0.025, tag: 'trending', mc: 130000000000 },
+  JUP:   { name: 'Jupiter',  base: 12500,   vol: 0.05,  tag: 'trending', mc: 1700000000 },
+  RAY:   { name: 'Raydium',  base: 42000,   vol: 0.06,  tag: 'new',     mc: 1100000000 },
+  ORCA:  { name: 'Orca',     base: 38000,   vol: 0.055, tag: 'new',     mc: 900000000 },
+  GOLD:  { name: 'Emas',     base: 1450000, vol: 0.008, tag: 'trending', mc: 0 }
+};
+var axPrices = {};
+var axPrev = {};
+var axHistory = {}; // sparkline points
+var axTape = [];
+var axSelected = 'PEPE';
+var axSide = 'buy';
+var axFilter = 'trending';
+var axTimer = null;
+var AX_FEE = 0.01;
+
+Object.keys(AX_TOKENS).forEach(function(k) {
+  axPrices[k] = AX_TOKENS[k].base;
+  axPrev[k] = AX_TOKENS[k].base;
+  axHistory[k] = [];
+  for (var i = 0; i < 40; i++) axHistory[k].push(AX_TOKENS[k].base);
+});
+
+function usdFromRp(rp) { return rp / 16000; }
+function formatUsd(n, signed) {
+  var abs = Math.abs(n);
+  var s = abs.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  if (signed) return (n >= 0 ? '+$' : '-$') + s;
+  return '$' + s;
+}
+function formatMc(n) {
+  if (!n) return '—';
+  if (n >= 1e9) return '$' + (n / 1e9).toFixed(1) + 'B';
+  if (n >= 1e6) return '$' + (n / 1e6).toFixed(1) + 'M';
+  return '$' + n;
+}
+
+function tickAxiom() {
+  Object.keys(AX_TOKENS).forEach(function(k) {
+    axPrev[k] = axPrices[k];
+    var ch = (Math.random() - 0.48) * AX_TOKENS[k].vol;
+    axPrices[k] = Math.max(AX_TOKENS[k].base * 0.15, axPrices[k] * (1 + ch));
+    if (axPrices[k] > 100) axPrices[k] = Math.round(axPrices[k]);
+    else axPrices[k] = Math.round(axPrices[k] * 10000) / 10000;
+    axHistory[k].push(axPrices[k]);
+    if (axHistory[k].length > 40) axHistory[k].shift();
+  });
+  // random tape
+  if (Math.random() > 0.4) {
+    var keys = Object.keys(AX_TOKENS);
+    var tk = keys[Math.floor(Math.random() * keys.length)];
+    var side = Math.random() > 0.45 ? 'BUY' : 'SELL';
+    var amt = Math.round((Math.random() * 5000000) + 50000);
+    axTape.unshift({ t: Date.now(), side: side, token: tk, amt: amt, price: axPrices[tk] });
+    if (axTape.length > 25) axTape.pop();
+  }
+  if (!document.getElementById('axiom-page').classList.contains('hidden')) {
+    renderAxTokenList();
+    renderAxTradePanel();
+    renderAxTape();
+  }
+}
+
+function startAxiomTicker() {
+  if (axTimer) return;
+  axTimer = setInterval(tickAxiom, 1800);
+}
+function stopAxiomTicker() {
+  if (axTimer) { clearInterval(axTimer); axTimer = null; }
+}
+
+function ensureAxPortfolio(u) {
+  ensurePortfolio(u);
+  Object.keys(AX_TOKENS).forEach(function(k) {
+    if (!u.portfolio[k]) u.portfolio[k] = { qty: 0, avg: 0 };
+  });
+}
+
+function calcAxiomStats(u) {
+  var trades = u.trades || [];
+  var dayStart = new Date(); dayStart.setHours(0, 0, 0, 0);
+  var dayTs = dayStart.getTime();
+  var bought = 0, sold = 0, boughtToday = 0, soldToday = 0;
+  trades.forEach(function(t) {
+    if (t.side === 'BUY') { bought += t.total; if (t.ts >= dayTs) boughtToday += t.total; }
+    else if (t.side === 'SELL') { sold += t.total; if (t.ts >= dayTs) soldToday += t.total; }
+  });
+  var realizedRp = soldToday - boughtToday;
+  ensureAxPortfolio(u);
+  var portVal = 0, portCost = 0;
+  Object.keys(u.portfolio).forEach(function(k) {
+    var pos = u.portfolio[k];
+    if (!pos || pos.qty <= 0) return;
+    var price = axPrices[k] || tradePrices[k] || 0;
+    portVal += pos.qty * price;
+    portCost += pos.qty * pos.avg;
+  });
+  var unrealized = portVal - portCost;
+  var pnlPct = portCost > 0 ? (unrealized / portCost) * 100 : 0;
+  return { realizedRp: realizedRp + Math.max(0, unrealized * 0.05), pnlPct: pnlPct, bought: bought, sold: sold };
+}
+
+function axiomHandle(u) {
+  var digits = String(u.rekening).slice(-4);
+  return '@' + u.username.charAt(0).toUpperCase() + u.username.slice(1) + digits;
+}
+
+function axPct(k) {
+  var p = axPrices[k], prev = axPrev[k] || p;
+  return prev ? ((p - prev) / prev) * 100 : 0;
+}
+
+function renderAxTokenList() {
+  var list = document.getElementById('ax-token-list');
+  if (!list) return;
+  var keys = Object.keys(AX_TOKENS).filter(function(k) {
+    if (axFilter === 'trending') return AX_TOKENS[k].tag === 'trending' || AX_TOKENS[k].tag === 'meme';
+    if (axFilter === 'new') return AX_TOKENS[k].tag === 'new';
+    if (axFilter === 'meme') return AX_TOKENS[k].tag === 'meme';
+    if (axFilter === 'gainers') return axPct(k) >= 0;
+    return true;
+  });
+  if (axFilter === 'gainers') keys.sort(function(a, b) { return axPct(b) - axPct(a); });
+  list.innerHTML = keys.map(function(k) {
+    var pct = axPct(k);
+    var up = pct >= 0;
+    var vol = Math.round(AX_TOKENS[k].mc * 0.02 * (0.5 + Math.random()));
+    return '<button type="button" class="ax-token-row grid grid-cols-12 gap-2 px-3 py-3 w-full text-left hover:bg-white/[0.04] transition-colors ' + (axSelected === k ? 'bg-white/[0.06]' : '') + '" data-token="' + k + '">' +
+      '<div class="col-span-4 flex items-center gap-2 min-w-0">' +
+      '<div class="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-400 to-cyan-600 flex items-center justify-center text-[9px] font-bold shrink-0">' + k.slice(0, 2) + '</div>' +
+      '<div class="min-w-0"><p class="text-sm font-semibold truncate">' + k + '</p><p class="text-[10px] text-white/30 truncate">' + AX_TOKENS[k].name + '</p></div></div>' +
+      '<div class="col-span-3 text-right font-mono text-xs self-center">' + formatRp(axPrices[k]) + '</div>' +
+      '<div class="col-span-2 text-right text-xs self-center ' + (up ? 'text-emerald-400' : 'text-red-400') + '">' + (up ? '+' : '') + pct.toFixed(2) + '%</div>' +
+      '<div class="col-span-3 text-right text-[11px] text-white/40 self-center font-mono">' + formatMc(vol) + '</div>' +
+      '</button>';
+  }).join('');
+  list.querySelectorAll('.ax-token-row').forEach(function(btn) {
+    btn.onclick = function() {
+      axSelected = btn.getAttribute('data-token');
+      switchAxTab('trade');
+      renderAxTradePanel();
+      renderAxTokenList();
+    };
+  });
+}
+
+function drawAxChart() {
+  var canvas = document.getElementById('ax-chart');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width, h = canvas.height;
+  var data = axHistory[axSelected] || [];
+  ctx.clearRect(0, 0, w, h);
+  if (data.length < 2) return;
+  var min = Math.min.apply(null, data), max = Math.max.apply(null, data);
+  var range = max - min || 1;
+  ctx.beginPath();
+  data.forEach(function(v, i) {
+    var x = (i / (data.length - 1)) * w;
+    var y = h - ((v - min) / range) * (h - 20) - 10;
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  });
+  var up = data[data.length - 1] >= data[0];
+  ctx.strokeStyle = up ? '#10b981' : '#ef4444';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  // fill
+  ctx.lineTo(w, h); ctx.lineTo(0, h); ctx.closePath();
+  ctx.fillStyle = up ? 'rgba(16,185,129,0.08)' : 'rgba(239,68,68,0.08)';
+  ctx.fill();
+}
+
+function renderAxTradePanel() {
+  var t = AX_TOKENS[axSelected];
+  if (!t) return;
+  var price = axPrices[axSelected];
+  var pct = axPct(axSelected);
+  document.getElementById('ax-trade-sym').textContent = axSelected;
+  document.getElementById('ax-trade-name').textContent = t.name;
+  document.getElementById('ax-trade-price').textContent = formatRp(price);
+  var chg = document.getElementById('ax-trade-chg');
+  chg.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
+  chg.className = 'text-xs mt-0.5 ' + (pct >= 0 ? 'text-emerald-400' : 'text-red-400');
+  document.getElementById('ax-trade-mc').textContent = formatMc(t.mc);
+  document.getElementById('ax-trade-liq').textContent = formatMc(t.mc * 0.08);
+  drawAxChart();
+  updateAxEst();
+  renderAxPosition();
+  var sub = document.getElementById('ax-submit');
+  if (axSide === 'buy') {
+    sub.textContent = 'Buy ' + axSelected;
+    sub.className = 'w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-bold text-sm transition-colors';
+  } else {
+    sub.textContent = 'Sell ' + axSelected;
+    sub.className = 'w-full py-3 rounded-xl bg-red-600 hover:bg-red-500 font-bold text-sm transition-colors';
+  }
+}
+
+function updateAxEst() {
+  var amount = Number(document.getElementById('ax-amount').value) || 0;
+  var price = axPrices[axSelected] || 1;
+  var qty = amount / price;
+  document.getElementById('ax-est-qty').textContent = qty > 0 ? qty.toFixed(6) : '0';
+}
+
+function renderAxPosition() {
+  var u = currentUser();
+  if (!u) return;
+  ensureAxPortfolio(u);
+  var pos = u.portfolio[axSelected];
+  var box = document.getElementById('ax-position');
+  if (!pos || pos.qty <= 0) {
+    box.innerHTML = '<span class="text-white/40">No position in ' + axSelected + '</span>';
+    return;
+  }
+  var price = axPrices[axSelected];
+  var val = pos.qty * price;
+  var pl = val - pos.qty * pos.avg;
+  var plCls = pl >= 0 ? 'text-emerald-400' : 'text-red-400';
+  box.innerHTML = '<div class="space-y-1">' +
+    '<div class="flex justify-between"><span class="text-white/40">Qty</span><span class="font-mono">' + pos.qty.toFixed(6) + '</span></div>' +
+    '<div class="flex justify-between"><span class="text-white/40">Avg</span><span class="font-mono">' + formatRp(Math.round(pos.avg)) + '</span></div>' +
+    '<div class="flex justify-between"><span class="text-white/40">Value</span><span class="font-mono">' + formatRp(Math.round(val)) + '</span></div>' +
+    '<div class="flex justify-between"><span class="text-white/40">P/L</span><span class="font-mono ' + plCls + '">' + (pl >= 0 ? '+' : '') + formatRp(Math.round(pl)) + '</span></div></div>';
+}
+
+function renderAxTape() {
+  var box = document.getElementById('ax-tape');
+  if (!box) return;
+  if (!axTape.length) {
+    box.innerHTML = '<p class="text-white/30">Waiting for flow…</p>';
+    return;
+  }
+  box.innerHTML = axTape.slice(0, 15).map(function(t) {
+    var cls = t.side === 'BUY' ? 'text-emerald-400' : 'text-red-400';
+    return '<div class="flex justify-between gap-2"><span class="' + cls + '">' + t.side + '</span><span class="text-white/50">' + t.token + '</span><span class="text-white/70">' + formatRp(t.amt) + '</span></div>';
+  }).join('');
+}
+
+function renderAxPulse() {
+  var u = currentUser();
+  if (!u) return;
+  var stats = calcAxiomStats(u);
+  var realizedUsd = usdFromRp(stats.realizedRp);
+  var el = document.getElementById('axiom-realized');
+  el.textContent = formatUsd(realizedUsd, true);
+  el.className = 'text-4xl font-bold tracking-tight ' + (realizedUsd >= 0 ? 'text-emerald-400' : 'text-red-400');
+  var pct = stats.pnlPct;
+  var pctEl = document.getElementById('axiom-pnl-pct');
+  pctEl.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(0) + '%';
+  pctEl.className = pct >= 0 ? 'text-emerald-400' : 'text-red-400';
+  document.getElementById('axiom-bought').textContent = formatUsd(usdFromRp(stats.bought), false);
+  document.getElementById('axiom-sold').textContent = formatUsd(usdFromRp(stats.sold), false);
+  document.getElementById('axiom-handle').textContent = axiomHandle(u);
+  applyAxiomMedia(u.axiomMedia || null, u.axiomMediaType || null);
+}
+
+function applyAxiomMedia(dataUrl, type) {
+  var img = document.getElementById('axiom-bg-img');
+  var vid = document.getElementById('axiom-bg-video');
+  var empty = document.getElementById('axiom-media-empty');
+  if (!img) return;
+  img.classList.add('hidden');
+  vid.classList.add('hidden');
+  vid.removeAttribute('src');
+  if (!dataUrl) { empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+  if (type && type.indexOf('video') === 0) {
+    vid.src = dataUrl; vid.classList.remove('hidden'); vid.play().catch(function() {});
+  } else {
+    img.src = dataUrl; img.classList.remove('hidden');
+  }
+}
+
+function handleAxiomUpload(file) {
+  if (!file) return;
+  var u = currentUser();
+  if (!u) return;
+  if (file.size > 2.5 * 1024 * 1024) { toast('File terlalu besar (max ±2.5 MB)', 'err'); return; }
+  var reader = new FileReader();
+  reader.onload = function() {
+    var dataUrl = reader.result;
+    var type = file.type || 'image/jpeg';
+    mutateUser(u.rekening, function(usr) { usr.axiomMedia = dataUrl; usr.axiomMediaType = type; });
+    applyAxiomMedia(dataUrl, type);
+    toast('Background diupdate');
+  };
+  reader.readAsDataURL(file);
+}
+
+function switchAxTab(tab) {
+  ['discover', 'trade', 'pulse'].forEach(function(t) {
+    var panel = document.getElementById('ax-panel-' + t);
+    if (panel) panel.classList.toggle('hidden', t !== tab);
+  });
+  document.querySelectorAll('.ax-tab').forEach(function(btn) {
+    var on = btn.getAttribute('data-ax-tab') === tab;
+    btn.className = 'ax-tab px-3 py-1.5 rounded-md ' + (on ? 'bg-white/10 font-medium' : 'text-white/50 hover:text-white');
+  });
+  if (tab === 'pulse') renderAxPulse();
+  if (tab === 'trade') renderAxTradePanel();
+  if (tab === 'discover') renderAxTokenList();
+}
+
+function showAxiomPage() {
+  var u = currentUser();
+  if (!u) return;
+  if (isUserFrozen(u)) { toast('Rekening dibekukan', 'err'); return; }
+  document.getElementById('dashboard').classList.add('hidden');
+  hideTrading();
+  hideRewardPage();
+  document.getElementById('axiom-page').classList.remove('hidden');
+  document.getElementById('ax-bal').textContent = formatRp(u.balance);
+  startAxiomTicker();
+  switchAxTab('discover');
+  renderAxTokenList();
+  renderAxTradePanel();
+}
+
+function hideAxiomPage() {
+  document.getElementById('axiom-page').classList.add('hidden');
+  stopAxiomTicker();
+  var vid = document.getElementById('axiom-bg-video');
+  if (vid) vid.pause();
+}
+
+document.getElementById('btn-goto-axiom').onclick = function() { showAxiomPage(); };
+document.getElementById('btn-back-dash-axiom').onclick = function() {
+  hideAxiomPage();
+  showDashboard();
+};
+document.querySelectorAll('.ax-tab').forEach(function(btn) {
+  btn.onclick = function() { switchAxTab(btn.getAttribute('data-ax-tab')); };
+});
+document.querySelectorAll('.ax-filter').forEach(function(btn) {
+  btn.onclick = function() {
+    axFilter = btn.getAttribute('data-filter');
+    document.querySelectorAll('.ax-filter').forEach(function(b) {
+      var on = b.getAttribute('data-filter') === axFilter;
+      b.className = 'ax-filter shrink-0 px-3 py-1.5 rounded-full border text-xs ' +
+        (on ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' : 'bg-white/5 text-white/60 border-white/10');
+    });
+    renderAxTokenList();
+  };
+});
+document.getElementById('ax-side-buy').onclick = function() {
+  axSide = 'buy';
+  document.getElementById('ax-side-buy').className = 'py-2 rounded-md bg-emerald-600 font-semibold';
+  document.getElementById('ax-side-sell').className = 'py-2 rounded-md text-white/50 hover:text-white';
+  renderAxTradePanel();
+};
+document.getElementById('ax-side-sell').onclick = function() {
+  axSide = 'sell';
+  document.getElementById('ax-side-sell').className = 'py-2 rounded-md bg-red-600 font-semibold';
+  document.getElementById('ax-side-buy').className = 'py-2 rounded-md text-white/50 hover:text-white';
+  renderAxTradePanel();
+};
+document.getElementById('ax-amount').oninput = updateAxEst;
+document.querySelectorAll('.ax-preset').forEach(function(btn) {
+  btn.onclick = function() {
+    var u = currentUser();
+    if (!u) return;
+    var pct = Number(btn.getAttribute('data-pct')) / 100;
+    if (axSide === 'buy') {
+      document.getElementById('ax-amount').value = Math.floor(u.balance * pct);
+    } else {
+      ensureAxPortfolio(u);
+      var pos = u.portfolio[axSelected];
+      var price = axPrices[axSelected];
+      var val = pos && pos.qty > 0 ? pos.qty * price : 0;
+      document.getElementById('ax-amount').value = Math.floor(val * pct);
+    }
+    updateAxEst();
+  };
+});
+document.getElementById('ax-submit').onclick = function() {
+  var me = currentUser();
+  if (!me) return;
+  if (isUserFrozen(me)) { toast('Rekening dibekukan', 'err'); return; }
+  var amount = Number(document.getElementById('ax-amount').value);
+  var price = axPrices[axSelected];
+  if (!amount || amount < 1000) { toast('Min. Rp 1.000', 'err'); return; }
+  // slippage
+  var slip = 1 + (Math.random() * 0.02 - 0.005);
+  var execPrice = price * slip;
+
+  if (axSide === 'buy') {
+    var fee = amount * AX_FEE;
+    var total = amount + fee;
+    if (me.balance < total) { toast('Saldo tidak cukup', 'err'); return; }
+    var qty = amount / execPrice;
+    var ok = mutateUser(me.rekening, function(u) {
+      ensureAxPortfolio(u);
+      u.balance -= total;
+      var pos = u.portfolio[axSelected];
+      var nq = pos.qty + qty;
+      pos.avg = nq > 0 ? ((pos.qty * pos.avg) + amount) / nq : execPrice;
+      pos.qty = nq;
+      u.trades.push({ ts: Date.now(), side: 'BUY', asset: axSelected, qty: qty, price: execPrice, total: Math.round(total) });
+    });
+    if (ok) {
+      toast('Bought ' + qty.toFixed(4) + ' ' + axSelected);
+      document.getElementById('ax-amount').value = '';
+      document.getElementById('ax-bal').textContent = formatRp(currentUser().balance);
+      renderAxTradePanel();
+    }
+  } else {
+    ensureAxPortfolio(me);
+    var pos = me.portfolio[axSelected];
+    var qty = amount / execPrice;
+    if (!pos || pos.qty < qty) { toast('Qty tidak cukup', 'err'); return; }
+    var proceeds = qty * execPrice;
+    var fee = proceeds * AX_FEE;
+    var net = proceeds - fee;
+    var ok2 = mutateUser(me.rekening, function(u) {
+      ensureAxPortfolio(u);
+      u.portfolio[axSelected].qty -= qty;
+      if (u.portfolio[axSelected].qty <= 1e-12) { u.portfolio[axSelected].qty = 0; u.portfolio[axSelected].avg = 0; }
+      u.balance += net;
+      u.trades.push({ ts: Date.now(), side: 'SELL', asset: axSelected, qty: qty, price: execPrice, total: Math.round(net) });
+    });
+    if (ok2) {
+      toast('Sold ' + qty.toFixed(4) + ' ' + axSelected);
+      document.getElementById('ax-amount').value = '';
+      document.getElementById('ax-bal').textContent = formatRp(currentUser().balance);
+      renderAxTradePanel();
+    }
+  }
+};
+document.getElementById('axiom-media-input').onchange = function(e) {
+  handleAxiomUpload(e.target.files && e.target.files[0]); e.target.value = '';
+};
+document.getElementById('axiom-media-input2').onchange = function(e) {
+  handleAxiomUpload(e.target.files && e.target.files[0]); e.target.value = '';
+};
+document.getElementById('btn-axiom-download').onclick = function() {
+  var u = currentUser();
+  if (!u || !u.axiomMedia) {
+    toast('Belum ada foto/video diupload', 'err');
+    return;
+  }
+  var type = u.axiomMediaType || 'image/png';
+  var isVideo = type.indexOf('video') === 0;
+  var ext = isVideo ? 'mp4' : 'png';
+  if (type.indexOf('jpeg') !== -1 || type.indexOf('jpg') !== -1) ext = 'jpg';
+  else if (type.indexOf('webp') !== -1) ext = 'webp';
+  else if (type.indexOf('webm') !== -1) ext = 'webm';
+  else if (type.indexOf('gif') !== -1) ext = 'gif';
+  var a = document.createElement('a');
+  a.href = u.axiomMedia;
+  a.download = 'axiom-pulse-' + (u.username || 'user') + '.' + ext;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  toast('Media diunduh');
+};
+
+// Boot
+if (currentUser()) showDashboard();
+</script>
+</body>
+</html>
